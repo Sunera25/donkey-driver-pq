@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { AlertTriangle, ArrowLeft, Shield, Eye, EyeOff } from "lucide-react"
-import Link from "next/link"
+import { Shield, Eye, EyeOff } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Navbar } from "@/components/navbar"
 
 export default function PoliceLoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -28,16 +28,7 @@ export default function PoliceLoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white">
-      {/* Header */}
-      <header className="bg-black text-yellow-400 p-4 shadow-lg">
-        <div className="container mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2 hover:text-yellow-300 transition-colors">
-            <ArrowLeft className="h-6 w-6" />
-            <AlertTriangle className="h-8 w-8" />
-            <h1 className="text-2xl font-bold">Donkey Driver</h1>
-          </Link>
-        </div>
-      </header>
+      <Navbar />
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-md mx-auto">
@@ -114,9 +105,9 @@ export default function PoliceLoginPage() {
               <div className="mt-6 text-center text-sm text-gray-600">
                 <p>Authorized personnel only</p>
                 <p className="mt-2">
-                  <Link href="#" className="text-black hover:text-yellow-600 underline">
+                  <a href="#" className="text-black hover:text-yellow-600 underline">
                     Forgot credentials?
-                  </Link>
+                  </a>
                 </p>
               </div>
             </CardContent>

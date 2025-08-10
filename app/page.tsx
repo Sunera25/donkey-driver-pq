@@ -1,31 +1,13 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Camera, Shield, TrendingDown, Users, AlertTriangle } from "lucide-react"
+import { Camera, Shield, TrendingDown, Users, AlertTriangle, Upload } from "lucide-react"
 import Link from "next/link"
+import { Navbar } from "@/components/navbar"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white">
-      {/* Header */}
-      <header className="bg-black text-yellow-400 p-4 shadow-lg">
-        <div className="container mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <AlertTriangle className="h-8 w-8" />
-            <h1 className="text-2xl font-bold">Donkey Driver</h1>
-          </div>
-          <nav className="hidden md:flex space-x-4">
-            <Link href="/leaderboard" className="hover:text-yellow-300 transition-colors">
-              Worst Drivers
-            </Link>
-            <Link href="/police/login" className="hover:text-yellow-300 transition-colors">
-              Police Login
-            </Link>
-            <Link href="/insurance/login" className="hover:text-yellow-300 transition-colors">
-              Insurance Login
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-12 text-center">
@@ -37,13 +19,13 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/report">
+            <Link href="/upload">
               <Button
                 size="lg"
                 className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-8 py-4 text-lg"
               >
-                <Camera className="mr-2 h-6 w-6" />
-                Report Violation
+                <Upload className="mr-2 h-6 w-6" />
+                Upload Violation
               </Button>
             </Link>
             <Link href="/leaderboard">
@@ -136,17 +118,6 @@ export default function HomePage() {
             <span className="text-xl font-bold">Donkey Driver</span>
           </div>
           <p className="text-yellow-400/80">Making Sri Lankan roads safer, one report at a time.</p>
-          <div className="mt-4 flex justify-center space-x-6">
-            <Link href="/leaderboard" className="hover:text-yellow-300 transition-colors">
-              Worst Drivers
-            </Link>
-            <Link href="/police/login" className="hover:text-yellow-300 transition-colors">
-              Police Portal
-            </Link>
-            <Link href="/insurance/login" className="hover:text-yellow-300 transition-colors">
-              Insurance Portal
-            </Link>
-          </div>
         </div>
       </footer>
     </div>

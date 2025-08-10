@@ -2,23 +2,48 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Camera, Upload, MapPin, AlertTriangle, ArrowLeft, Video, ImageIcon } from "lucide-react"
-import Link from "next/link"
+import { Camera, Upload, MapPin, Video, ImageIcon } from "lucide-react"
+import { Navbar } from "@/components/navbar"
 
-export default function ReportPage() {
+export default function UploadPage() {
   const [mediaFile, setMediaFile] = useState<File | null>(null)
   const [mediaPreview, setMediaPreview] = useState<string | null>(null)
   const [mediaType, setMediaType] = useState<"photo" | "video" | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
+
+  // Check for pre-captured media from navbar
+  useEffect(() => {
+    const capturedMedia = sessionStorage.getItem("capturedMedia")
+    const capturedMediaType = sessionStorage.getItem("capturedMediaType")
+    const capturedMediaName = sessionStorage.getItem("capturedMediaName")
+
+    if (capturedMedia && capturedMediaType) {
+      setMediaPreview(capturedMedia)
+      setMediaType(capturedMediaType === "video" ? "video" : "photo")
+
+      // Convert data URL back to File object
+      fetch(capturedMedia)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const file = new File([blob], capturedMediaName || "captured-media", { type: capturedMediaType })
+          setMediaFile(file)
+        })
+
+      // Clear session storage
+      sessionStorage.removeItem("capturedMedia")
+      sessionStorage.removeItem("capturedMediaType")
+      sessionStorage.removeItem("capturedMediaName")
+    }
+  }, [])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -55,16 +80,7 @@ export default function ReportPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white">
-      {/* Header */}
-      <header className="bg-black text-yellow-400 p-4 shadow-lg">
-        <div className="container mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2 hover:text-yellow-300 transition-colors">
-            <ArrowLeft className="h-6 w-6" />
-            <AlertTriangle className="h-8 w-8" />
-            <h1 className="text-2xl font-bold">Donkey Driver</h1>
-          </Link>
-        </div>
-      </header>
+      <Navbar />
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
@@ -72,7 +88,7 @@ export default function ReportPage() {
             <CardHeader className="bg-black text-yellow-400">
               <CardTitle className="flex items-center space-x-2">
                 <Camera className="h-6 w-6" />
-                <span>Report Traffic Violation</span>
+                <span>Upload Traffic Violation</span>
               </CardTitle>
               <CardDescription className="text-yellow-400/80">
                 Help make roads safer by reporting reckless driving behavior

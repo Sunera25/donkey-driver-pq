@@ -4,8 +4,8 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, ArrowLeft, Trophy, TrendingDown, Calendar, MapPin, Filter } from "lucide-react"
-import Link from "next/link"
+import { Trophy, TrendingDown, Calendar, MapPin, Filter } from "lucide-react"
+import { Navbar } from "@/components/navbar"
 
 // Mock data for worst drivers
 const worstDrivers = [
@@ -40,16 +40,7 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white">
-      {/* Header */}
-      <header className="bg-black text-yellow-400 p-4 shadow-lg">
-        <div className="container mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2 hover:text-yellow-300 transition-colors">
-            <ArrowLeft className="h-6 w-6" />
-            <AlertTriangle className="h-8 w-8" />
-            <h1 className="text-2xl font-bold">Donkey Driver</h1>
-          </Link>
-        </div>
-      </header>
+      <Navbar />
 
       <div className="container mx-auto px-4 py-8">
         {/* Page Title */}
@@ -63,7 +54,7 @@ export default function LeaderboardPage() {
 
         {/* Filters */}
         <Card className="mb-8 border-2 border-yellow-400">
-          <CardHeader className="bg-yellow-400 text-black">
+          <CardHeader className="bg-yellow-400 text-black pb-4">
             <CardTitle className="flex items-center space-x-2">
               <Filter className="h-5 w-5" />
               <span>Filter & Sort</span>
@@ -154,7 +145,7 @@ export default function LeaderboardPage() {
 
         {/* Full Leaderboard */}
         <Card className="border-2 border-yellow-400">
-          <CardHeader className="bg-black text-yellow-400">
+          <CardHeader className="bg-black text-yellow-400 pb-4">
             <CardTitle className="text-xl">Complete Rankings</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
