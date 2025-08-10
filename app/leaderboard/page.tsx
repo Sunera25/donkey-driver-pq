@@ -4,10 +4,12 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { leaderboardAPI, type WorstDriver } from "@/lib/api"
-import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default function LeaderboardPage() {
   const [worstDrivers, setWorstDrivers] = useState<WorstDriver[]>([])
@@ -94,9 +96,72 @@ export default function LeaderboardPage() {
           <p className="text-gray-600 text-lg">Public accountability for repeat traffic offenders</p>
         </div>
 
-        {/* Filters */}
-        <Card className="mb-8 border-2 border-yellow-400">
-          <CardHeader className="bg-yellow-400 text-black p-4">
+        {/* Mobile Filter Button */}
+        <div className="md:hidden mb-6">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold">
+                <Filter className="h-5 w-5 mr-2" />
+                Filter & Sort
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="rounded-t-2xl">
+              <SheetHeader>
+                <SheetTitle>Filter & Sort Options</SheetTitle>
+              </SheetHeader>
+              <div className="space-y-4 mt-6">
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Time Period</label>
+                  <Select value={timeFilter} onValueChange={setTimeFilter}>
+                    <SelectTrigger className="border-black">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Time</SelectItem>
+                      <SelectItem value="month">This Month</SelectItem>
+                      <SelectItem value="week">This Week</SelectItem>
+                      <SelectItem value="year">This Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Location</label>
+                  <Select value={locationFilter} onValueChange={setLocationFilter}>
+                    <SelectTrigger className="border-black">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Locations</SelectItem>
+                      <SelectItem value="colombo">Colombo</SelectItem>
+                      <SelectItem value="kandy">Kandy</SelectItem>
+                      <SelectItem value="galle">Galle</SelectItem>
+                      <SelectItem value="negombo">Negombo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Sort By</label>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="border-black">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="violations">Most Violations</SelectItem>
+                      <SelectItem value="points">Donkey Points</SelectItem>
+                      <SelectItem value="recent">Most Recent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        {/* Desktop Filters */}
+        <Card className="mb-8 border-2 border-yellow-400 hidden md:block rounded-2xl">
+          <CardHeader className="bg-yellow-400 text-black p-4 rounded-t-2xl">
             <CardTitle className="flex items-center space-x-2">
               <Filter className="h-5 w-5" />
               <span>Filter & Sort</span>
@@ -143,7 +208,7 @@ export default function LeaderboardPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="violations">Most Violations</SelectItem>
-                    <SelectItem value="points">Negative Points</SelectItem>
+                    <SelectItem value="points">Donkey Points</SelectItem>
                     <SelectItem value="recent">Most Recent</SelectItem>
                   </SelectContent>
                 </Select>
@@ -159,20 +224,24 @@ export default function LeaderboardPage() {
             {worstDrivers.slice(0, 3).map((driver, index) => (
               <Card
                 key={driver.id}
-                className={`border-4 ${index === 0 ? "border-red-500 transform scale-105" : index === 1 ? "border-orange-500" : "border-yellow-500"} shadow-xl`}
+                className={`border-4 ${index === 0 ? "border-red-500 transform scale-105" : index === 1 ? "border-orange-500" : "border-yellow-500"} shadow-xl rounded-2xl`}
               >
                 <CardHeader
-                  className={`${index === 0 ? "bg-red-500" : index === 1 ? "bg-orange-500" : "bg-yellow-500"} text-white text-center p-4`}
+                  className={`${index === 0 ? "bg-red-500" : index === 1 ? "bg-orange-500" : "bg-yellow-500"} text-white text-center p-4 rounded-t-2xl`}
                 >
                   <div className="flex justify-center mb-2">{getRankIcon(driver.rank)}</div>
-                  <CardTitle className="text-2xl">{driver.id}</CardTitle>
+                  <CardTitle className="text-2xl">
+                    <Link href={`/driver/${driver.id}`} className="hover:underline cursor-pointer">
+                      {driver.id}
+                    </Link>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 text-center">
                   <div className="space-y-3">
                     <div className="text-3xl font-bold text-black">{driver.violations}</div>
                     <div className="text-gray-600">Violations</div>
                     <Badge variant="destructive" className="text-lg px-3 py-1">
-                      {driver.points} Points
+                      {driver.points} Donkey Points
                     </Badge>
                     <div className="flex items-center justify-center space-x-1 text-sm text-gray-600">
                       <MapPin className="h-4 w-4" />
@@ -186,8 +255,8 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Full Leaderboard */}
-        <Card className="border-2 border-yellow-400">
-          <CardHeader className="bg-black text-yellow-400 p-4">
+        <Card className="border-2 border-yellow-400 rounded-2xl">
+          <CardHeader className="bg-black text-yellow-400 p-4 rounded-t-2xl">
             <CardTitle className="text-xl">Complete Rankings</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -196,9 +265,9 @@ export default function LeaderboardPage() {
                 <thead className="bg-yellow-400 text-black">
                   <tr>
                     <th className="px-4 py-3 text-left">Rank</th>
-                    <th className="px-4 py-3 text-left">Driver ID</th>
+                    <th className="px-4 py-3 text-left">Number Plate</th>
                     <th className="px-4 py-3 text-center">Violations</th>
-                    <th className="px-4 py-3 text-center">Points</th>
+                    <th className="px-4 py-3 text-center">Donkey Points</th>
                     <th className="px-4 py-3 text-left">Location</th>
                     <th className="px-4 py-3 text-left">Last Violation</th>
                   </tr>
@@ -212,7 +281,14 @@ export default function LeaderboardPage() {
                           <Badge className={getRankBadge(driver.rank)}>#{driver.rank}</Badge>
                         </div>
                       </td>
-                      <td className="px-4 py-4 font-mono font-bold text-black">{driver.id}</td>
+                      <td className="px-4 py-4 font-mono font-bold text-black">
+                        <Link
+                          href={`/driver/${driver.id}`}
+                          className="hover:text-yellow-600 hover:underline cursor-pointer"
+                        >
+                          {driver.id}
+                        </Link>
+                      </td>
                       <td className="px-4 py-4 text-center">
                         <span className="text-2xl font-bold text-red-600">{driver.violations}</span>
                       </td>
@@ -243,13 +319,13 @@ export default function LeaderboardPage() {
 
         {/* Stats Summary */}
         <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="text-center border-yellow-400">
+          <Card className="text-center border-yellow-400 rounded-2xl">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-black">{worstDrivers.length}</div>
               <div className="text-gray-600">Total Offenders</div>
             </CardContent>
           </Card>
-          <Card className="text-center border-yellow-400">
+          <Card className="text-center border-yellow-400 rounded-2xl">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-black">
                 {worstDrivers.reduce((sum, driver) => sum + driver.violations, 0)}
@@ -257,15 +333,15 @@ export default function LeaderboardPage() {
               <div className="text-gray-600">Total Violations</div>
             </CardContent>
           </Card>
-          <Card className="text-center border-yellow-400">
+          <Card className="text-center border-yellow-400 rounded-2xl">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-black">
                 {worstDrivers.reduce((sum, driver) => sum + driver.points, 0)}
               </div>
-              <div className="text-gray-600">Total Points Lost</div>
+              <div className="text-gray-600">Total Donkey Points</div>
             </CardContent>
           </Card>
-          <Card className="text-center border-yellow-400">
+          <Card className="text-center border-yellow-400 rounded-2xl">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-black">23%</div>
               <div className="text-gray-600">Repeat Rate</div>

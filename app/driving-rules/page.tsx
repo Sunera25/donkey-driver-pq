@@ -18,9 +18,9 @@ const trafficSigns = [
     category: "Regulatory Signs",
     color: "bg-red-500",
     signs: [
-      { name: "Stop Sign", description: "Complete stop required", points: "Rs. 3,000 fine + 3 points" },
-      { name: "No Entry", description: "Vehicles prohibited", points: "Rs. 5,000 fine + 5 points" },
-      { name: "Speed Limit", description: "Maximum speed allowed", points: "Rs. 2,500 fine + 2 points" },
+      { name: "Stop Sign", description: "Complete stop required", points: "Rs. 3,000 fine + 3 Donkey Points" },
+      { name: "No Entry", description: "Vehicles prohibited", points: "Rs. 5,000 fine + 5 Donkey Points" },
+      { name: "Speed Limit", description: "Maximum speed allowed", points: "Rs. 2,500 fine + 2 Donkey Points" },
       { name: "No Parking", description: "Parking prohibited", points: "Rs. 1,500 fine" },
     ],
   },
@@ -46,7 +46,7 @@ const drivingRules = [
       "School zones: 30 km/h maximum",
       "Residential areas: 40 km/h maximum",
     ],
-    penalty: "Rs. 2,500 fine + 2 demerit points",
+    penalty: "Rs. 2,500 fine + 2 Donkey Points",
   },
   {
     title: "Traffic Lights",
@@ -57,7 +57,7 @@ const drivingRules = [
       "Green: Proceed with caution",
       "Flashing red: Treat as stop sign",
     ],
-    penalty: "Rs. 3,000 fine + 3 demerit points",
+    penalty: "Rs. 3,000 fine + 3 Donkey Points",
   },
   {
     title: "Lane Discipline",
@@ -68,7 +68,7 @@ const drivingRules = [
       "Maintain safe following distance",
       "No zigzag driving",
     ],
-    penalty: "Rs. 2,000 fine + 2 demerit points",
+    penalty: "Rs. 2,000 fine + 2 Donkey Points",
   },
   {
     title: "Safety Equipment",
@@ -100,28 +100,28 @@ export default function DrivingRulesPage() {
 
         {/* Key Statistics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="text-center border-yellow-400">
+          <Card className="text-center border-yellow-400 rounded-2xl">
             <CardContent className="p-4">
               <Clock className="h-8 w-8 mx-auto mb-2 text-blue-500" />
               <div className="text-2xl font-bold text-black">24/7</div>
               <div className="text-gray-600">Rules Apply</div>
             </CardContent>
           </Card>
-          <Card className="text-center border-yellow-400">
+          <Card className="text-center border-yellow-400 rounded-2xl">
             <CardContent className="p-4">
               <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-500" />
               <div className="text-2xl font-bold text-black">15</div>
-              <div className="text-gray-600">Demerit Points = License Suspension</div>
+              <div className="text-gray-600">Donkey Points = License Suspension</div>
             </CardContent>
           </Card>
-          <Card className="text-center border-yellow-400">
+          <Card className="text-center border-yellow-400 rounded-2xl">
             <CardContent className="p-4">
               <Car className="h-8 w-8 mx-auto mb-2 text-green-500" />
               <div className="text-2xl font-bold text-black">50</div>
               <div className="text-gray-600">km/h City Speed Limit</div>
             </CardContent>
           </Card>
-          <Card className="text-center border-yellow-400">
+          <Card className="text-center border-yellow-400 rounded-2xl">
             <CardContent className="p-4">
               <Shield className="h-8 w-8 mx-auto mb-2 text-yellow-500" />
               <div className="text-2xl font-bold text-black">Rs. 25K</div>
@@ -135,8 +135,8 @@ export default function DrivingRulesPage() {
           <h3 className="text-2xl font-bold text-black mb-6">Essential Driving Rules</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {drivingRules.map((rule, index) => (
-              <Card key={index} className="border-2 border-yellow-400">
-                <CardHeader className="bg-black text-yellow-400 py-3">
+              <Card key={index} className="border-2 border-yellow-400 rounded-2xl">
+                <CardHeader className="bg-black text-yellow-400 p-4 rounded-t-2xl">
                   <CardTitle className="flex items-center space-x-2">
                     {rule.icon}
                     <span>{rule.title}</span>
@@ -165,8 +165,8 @@ export default function DrivingRulesPage() {
           <h3 className="text-2xl font-bold text-black mb-6">Traffic Signs & Penalties</h3>
           <div className="space-y-8">
             {trafficSigns.map((category, index) => (
-              <Card key={index} className="border-2 border-yellow-400">
-                <CardHeader className={`${category.color} text-white py-3`}>
+              <Card key={index} className="border-2 border-yellow-400 rounded-2xl">
+                <CardHeader className={`${category.color} text-white p-4 rounded-t-2xl`}>
                   <CardTitle className="text-xl">{category.category}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
@@ -196,8 +196,8 @@ export default function DrivingRulesPage() {
         </div>
 
         {/* Important Reminders */}
-        <Card className="border-2 border-red-500 bg-red-50">
-          <CardHeader className="bg-red-500 text-white py-3">
+        <Card className="border-2 border-red-500 bg-red-50 rounded-2xl">
+          <CardHeader className="bg-red-500 text-white p-4 rounded-t-2xl">
             <CardTitle className="flex items-center space-x-2">
               <AlertTriangle className="h-6 w-6" />
               <span>Important Reminders</span>
@@ -206,9 +206,9 @@ export default function DrivingRulesPage() {
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-semibold text-black mb-3">Demerit Point System</h4>
+                <h4 className="font-semibold text-black mb-3">Donkey Point System</h4>
                 <ul className="space-y-2 text-sm text-gray-700">
-                  <li>• 15 points = License suspension</li>
+                  <li>• 15 Donkey Points = License suspension</li>
                   <li>• Points reset after 2 years</li>
                   <li>• Serious offenses = immediate suspension</li>
                   <li>• Court appearance may be required</li>
