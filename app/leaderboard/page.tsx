@@ -57,36 +57,53 @@ function CarouselSection({ drivers, getRankIcon }: { drivers: WorstDriver[], get
               <div key={driver.id} className="w-full flex-shrink-0 px-4">
                 <Card className={`border-3 ${
                   driver.rank === 1
-                    ? "border-yellow-500 bg-yellow-50"
+                    ? "border-yellow-500"
                     : driver.rank === 2
-                      ? "border-yellow-400 bg-yellow-25"
-                      : "border-yellow-300 bg-white"
-                } shadow-lg rounded-2xl`}>
-                  <CardHeader className={`${
-                    driver.rank === 1 ? "bg-yellow-500" : driver.rank === 2 ? "bg-yellow-400" : "bg-yellow-300"
-                  } text-black text-center p-4 rounded-t-2xl`}>
-                    <div className="flex justify-center mb-2">{getRankIcon(driver.rank)}</div>
-                    <CardTitle className="text-2xl">
-                      <Link
-                        href={`/driver/${driver.id}`}
-                        className="hover:underline cursor-pointer flex items-center justify-center space-x-2 text-black hover:text-gray-800 transition-colors"
-                      >
-                        <span>{driver.id}</span>
-                        <ExternalLink className="h-5 w-5" />
-                      </Link>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 text-center">
-                    <div className="space-y-3">
-                      <div className="text-3xl font-bold text-black">{driver.violations}</div>
-                      <div className="text-gray-600">Violations</div>
+                      ? "border-yellow-400"
+                      : "border-yellow-300"
+                } shadow-lg rounded-2xl overflow-hidden`}>
+                  {/* Video Section */}
+                  <div className="relative bg-black h-48 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
+                    <button className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-4 transition-colors">
+                      <Play className="h-8 w-8 text-black fill-black" />
+                    </button>
+                    
+                    {/* Rank Badge in top-left */}
+                    <div className="absolute top-3 left-3 z-10">
+                      <div className="flex items-center">{getRankIcon(driver.rank)}</div>
+                    </div>
+                    
+                    {/* External Link in top-right */}
+                    <Link
+                      href={`/driver/${driver.id}`}
+                      className="absolute top-3 right-3 z-10 bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
+                    >
+                      <ExternalLink className="h-5 w-5 text-white" />
+                    </Link>
+                    
+                    {/* Number Plate in bottom-left */}
+                    <div className="absolute bottom-3 left-3 z-10">
+                      <div className="bg-yellow-400 text-black px-3 py-1 rounded font-mono font-bold text-sm">
+                        {driver.id}
+                      </div>
+                    </div>
+                    
+                    {/* Location in bottom-right */}
+                    <div className="absolute bottom-3 right-3 z-10">
+                      <div className="bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center space-x-1">
+                        <MapPin className="h-3 w-3" />
+                        <span>{driver.location}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <CardContent className="p-4 text-center">
+                    <div className="space-y-2">
+                      <div className="text-2xl font-bold text-black">{driver.violations} Violations</div>
                       <Badge className="text-lg px-3 py-1 bg-black text-yellow-400 hover:bg-gray-800">
                         {driver.points} Donkey Points
                       </Badge>
-                      <div className="flex items-center justify-center space-x-1 text-sm text-gray-600">
-                        <MapPin className="h-4 w-4" />
-                        <span>{driver.location}</span>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -118,39 +135,54 @@ function CarouselSection({ drivers, getRankIcon }: { drivers: WorstDriver[], get
             key={driver.id}
             className={`border-3 ${
               index === 0
-                ? "border-yellow-500 transform scale-105 bg-yellow-50"
+                ? "border-yellow-500 transform scale-105"
                 : index === 1
-                  ? "border-yellow-400 bg-yellow-25"
-                  : "border-yellow-300 bg-white"
-            } shadow-lg rounded-2xl`}
+                  ? "border-yellow-400"
+                  : "border-yellow-300"
+            } shadow-lg rounded-2xl overflow-hidden`}
           >
-            <CardHeader
-              className={`${
-                index === 0 ? "bg-yellow-500" : index === 1 ? "bg-yellow-400" : "bg-yellow-300"
-              } text-black text-center p-4 rounded-t-2xl`}
-            >
-              <div className="flex justify-center mb-2">{getRankIcon(driver.rank)}</div>
-              <CardTitle className="text-2xl">
-                <Link
-                  href={`/driver/${driver.id}`}
-                  className="hover:underline cursor-pointer flex items-center justify-center space-x-2 text-black hover:text-gray-800 transition-colors"
-                >
-                  <span>{driver.id}</span>
-                  <ExternalLink className="h-5 w-5" />
-                </Link>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 text-center">
-              <div className="space-y-3">
-                <div className="text-3xl font-bold text-black">{driver.violations}</div>
-                <div className="text-gray-600">Violations</div>
+            {/* Video Section */}
+            <div className="relative bg-black h-48 flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
+              <button className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-4 transition-colors">
+                <Play className="h-8 w-8 text-black fill-black" />
+              </button>
+              
+              {/* Rank Badge in top-left */}
+              <div className="absolute top-3 left-3 z-10">
+                <div className="flex items-center">{getRankIcon(driver.rank)}</div>
+              </div>
+              
+              {/* External Link in top-right */}
+              <Link
+                href={`/driver/${driver.id}`}
+                className="absolute top-3 right-3 z-10 bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
+              >
+                <ExternalLink className="h-5 w-5 text-white" />
+              </Link>
+              
+              {/* Number Plate in bottom-left */}
+              <div className="absolute bottom-3 left-3 z-10">
+                <div className="bg-yellow-400 text-black px-3 py-1 rounded font-mono font-bold text-sm">
+                  {driver.id}
+                </div>
+              </div>
+              
+              {/* Location in bottom-right */}
+              <div className="absolute bottom-3 right-3 z-10">
+                <div className="bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center space-x-1">
+                  <MapPin className="h-3 w-3" />
+                  <span>{driver.location}</span>
+                </div>
+              </div>
+            </div>
+            
+            <CardContent className="p-4 text-center">
+              <div className="space-y-2">
+                <div className="text-2xl font-bold text-black">{driver.violations} Violations</div>
                 <Badge className="text-lg px-3 py-1 bg-black text-yellow-400 hover:bg-gray-800">
                   {driver.points} Donkey Points
                 </Badge>
-                <div className="flex items-center justify-center space-x-1 text-sm text-gray-600">
-                  <MapPin className="h-4 w-4" />
-                  <span>{driver.location}</span>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -393,25 +425,29 @@ export default function LeaderboardPage() {
                     <ExternalLink className="h-4 w-4 text-white" />
                   </Link>
                   
-                  {/* Donkey Points in bottom-right */}
+                  {/* Number Plate in bottom-left */}
+                  <div className="absolute bottom-3 left-3 z-10">
+                    <div className="bg-yellow-400 text-black px-2 py-1 rounded font-mono font-bold text-xs">
+                      {driver.id}
+                    </div>
+                  </div>
+                  
+                  {/* Location in bottom-right */}
                   <div className="absolute bottom-3 right-3 z-10">
-                    <Badge className="bg-yellow-400 text-black text-xs px-2 py-1">
-                      {driver.points} pts
-                    </Badge>
+                    <div className="bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center space-x-1">
+                      <MapPin className="h-3 w-3" />
+                      <span>{driver.location}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Number Plate */}
+                {/* Stats below video */}
                 <CardContent className="p-3">
-                  <div className="text-center">
-                    <CardTitle className="text-sm font-mono font-bold text-black">
-                      <Link
-                        href={`/driver/${driver.id}`}
-                        className="hover:underline cursor-pointer hover:text-yellow-600 transition-colors"
-                      >
-                        {driver.id}
-                      </Link>
-                    </CardTitle>
+                  <div className="text-center space-y-1">
+                    <div className="text-sm font-bold text-black">{driver.violations} Violations</div>
+                    <Badge className="bg-black text-yellow-400 text-xs px-2 py-1">
+                      {driver.points} pts
+                    </Badge>
                   </div>
                 </CardContent>
               </Card>
