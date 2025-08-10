@@ -120,7 +120,7 @@ export function Navbar() {
         </div>
       </nav>
       {/* Mobile Header - Fixed at Top */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-b border-yellow-400 w-full">
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-b border-yellow-400 w-full py-1">
         <div className="flex items-center justify-center p-4 gap-x-4">
           <div className="w-8 h-8 rounded-full overflow-hidden bg-yellow-400 p-0.5 mr-2">
             <Image
@@ -131,15 +131,15 @@ export function Navbar() {
               className="w-full h-full object-cover rounded-full"
             />
           </div>
-          <h1 className="text-lg font-bold">Donkey Driver</h1>
+          <h1 className="text-lg font-bold">Donkey Watch</h1>
         </div>
       </div>
       {/* Mobile Navbar - Fixed at Bottom */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-t border-yellow-400 w-full">
         <div className="p-3">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex items-center justify-between w-full relative">
             {/* Home */}
-            <Link href="/" className="flex flex-col items-center flex-1">
+            <Link href="/" className="flex flex-col items-center w-16">
               <Home className="h-6 w-6" />
               <span className="text-xs mt-1">Home</span>
             </Link>
@@ -147,27 +147,19 @@ export function Navbar() {
             {/* Worst */}
             <Link
               href="/leaderboard"
-              className="flex flex-col items-center flex-1"
+              className="flex flex-col items-center w-16"
             >
               <TrendingDown className="h-6 w-6" />
               <span className="text-xs mt-1">Worst</span>
             </Link>
 
-            {/* Camera */}
-            <div className="flex-1 flex justify-center">
-              <Button
-                onClick={handleCameraClick}
-                disabled={isCapturing}
-                className="bg-yellow-400 hover:bg-yellow-500 active:scale-95 transition-transform duration-200 text-black font-semibold px-8 py-6 rounded-full shadow-md hover:shadow-lg"
-              >
-                <Camera className="h-12 w-12" />
-              </Button>
-            </div>
+            {/* Spacer for Camera */}
+            <div className="w-16" />
 
             {/* Rules */}
             <Link
               href="/driving-rules"
-              className="flex flex-col items-center flex-1"
+              className="flex flex-col items-center w-16"
             >
               <BookOpen className="h-6 w-6" />
               <span className="text-xs mt-1">Rules</span>
@@ -176,11 +168,25 @@ export function Navbar() {
             {/* Settings */}
             <Button
               variant="ghost"
-              className="flex flex-col items-center flex-1 text-yellow-400"
+              className="flex flex-col items-center w-16 text-yellow-400"
             >
               <Settings className="h-6 w-6" />
               <span className="text-xs mt-1">Settings</span>
             </Button>
+
+            {/* Floating Camera */}
+            <div className="absolute left-1/2 -translate-x-1/2 -top-10">
+              <Button
+                onClick={handleCameraClick}
+                disabled={isCapturing}
+                className="bg-yellow-400 hover:bg-yellow-500 active:scale-95 
+                     transition-transform duration-200 text-black font-semibold 
+                     p-6 rounded-full shadow-lg hover:shadow-xl"
+                style={{ width: "80px", height: "80px" }}
+              >
+                <Camera className="h-10 w-10" />
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
