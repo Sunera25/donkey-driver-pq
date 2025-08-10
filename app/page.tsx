@@ -33,11 +33,11 @@ export default function HomePage() {
             Together, we can reduce accidents and encourage responsible driving.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
             <Link href="/upload">
               <Button
                 size="lg"
-                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-8 py-4 text-lg"
+                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-8 py-6 text-lg"
               >
                 <Upload className="mr-2 h-6 w-6" />
                 Report Violation
@@ -47,7 +47,7 @@ export default function HomePage() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-black text-black hover:bg-black hover:text-yellow-400 px-8 py-4 text-lg bg-transparent"
+                className="border-black text-black hover:bg-black hover:text-yellow-400 px-8 py-6 text-lg bg-transparent"
               >
                 <TrendingDown className="mr-2 h-6 w-6" />
                 View Worst Drivers
@@ -136,11 +136,11 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black text-yellow-400 py-8">
+      <footer className="bg-black text-yellow-400 py-10">
         <div className="container mx-auto px-4 text-center max-w-full">
           <div className="flex items-center justify-center space-x-4 mb-4">
             <AlertTriangle className="h-6 w-6" />
-            <span className="text-xl font-bold">Donkey Driver</span>
+            <span className="text-xl font-bold">Donkey Watch</span>
           </div>
           <p className="text-yellow-400/80">
             Making Sri Lankan roads safer, one report at a time.
