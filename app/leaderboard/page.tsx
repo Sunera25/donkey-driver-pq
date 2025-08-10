@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle, ExternalLink, Play, MessageCircle, Send, Heart, Maximize2 } from "lucide-react"
+import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle, Car, Play, MessageCircle, Send, Heart, Maximize2 } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { leaderboardAPI, type WorstDriver } from "@/lib/api"
 import Link from "next/link"
@@ -75,27 +75,11 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect }: { drivers: Wor
                       <div className="flex items-center">{getRankIcon(driver.rank)}</div>
                     </div>
                     
-                    {/* External Link and Maximize in top-right */}
-                    <div className="absolute top-3 right-3 z-10 flex space-x-2">
-                      <button
-                        onClick={() => onVideoSelect(driver)}
-                        className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
-                      >
-                        <Maximize2 className="h-5 w-5 text-white" />
-                      </button>
-                      <Link
-                        href={`/driver/${driver.id}`}
-                        className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
-                      >
-                        <ExternalLink className="h-5 w-5 text-white" />
-                      </Link>
-                    </div>
-                    
-                    {/* Number Plate in bottom-left */}
-                    <div className="absolute bottom-3 left-3 z-10">
-                      <div className="bg-yellow-400 text-black px-3 py-1 rounded font-mono font-bold text-sm">
-                        {driver.id}
-                      </div>
+                    {/* Donkey Points in top-right */}
+                    <div className="absolute top-3 right-3 z-10">
+                      <Badge className="bg-yellow-400 text-black px-3 py-1 text-sm font-bold">
+                        {Math.abs(driver.points)} pts
+                      </Badge>
                     </div>
                     
                     {/* Location in bottom-right */}
@@ -107,12 +91,23 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect }: { drivers: Wor
                     </div>
                   </div>
                   
-                  <CardContent className="p-4 text-center">
-                    <div className="space-y-2">
-                      <div className="text-2xl font-bold text-black">{driver.violations} Violations</div>
-                      <Badge className="text-lg px-3 py-1 bg-black text-yellow-400 hover:bg-gray-800">
-                        {driver.points} Donkey Points
-                      </Badge>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-mono font-bold text-sm text-black">{driver.id}</h3>
+                      <div className="flex items-center space-x-2">
+                        <Link
+                          href={`/driver/${driver.id}`}
+                          className="bg-gray-200 hover:bg-gray-300 rounded-full p-2 transition-colors"
+                        >
+                          <Car className="h-5 w-5 text-black" />
+                        </Link>
+                        <button
+                          onClick={() => onVideoSelect(driver)}
+                          className="bg-gray-200 hover:bg-gray-300 rounded-full p-2 transition-colors"
+                        >
+                          <Maximize2 className="h-5 w-5 text-black" />
+                        </button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -162,27 +157,11 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect }: { drivers: Wor
                 <div className="flex items-center">{getRankIcon(driver.rank)}</div>
               </div>
               
-              {/* External Link and Maximize in top-right */}
-              <div className="absolute top-3 right-3 z-10 flex space-x-2">
-                <button
-                  onClick={() => onVideoSelect(driver)}
-                  className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
-                >
-                  <Maximize2 className="h-5 w-5 text-white" />
-                </button>
-                <Link
-                  href={`/driver/${driver.id}`}
-                  className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
-                >
-                  <ExternalLink className="h-5 w-5 text-white" />
-                </Link>
-              </div>
-              
-              {/* Number Plate in bottom-left */}
-              <div className="absolute bottom-3 left-3 z-10">
-                <div className="bg-yellow-400 text-black px-3 py-1 rounded font-mono font-bold text-sm">
-                  {driver.id}
-                </div>
+              {/* Donkey Points in top-right */}
+              <div className="absolute top-3 right-3 z-10">
+                <Badge className="bg-yellow-400 text-black px-3 py-1 text-sm font-bold">
+                  {Math.abs(driver.points)} pts
+                </Badge>
               </div>
               
               {/* Location in bottom-right */}
@@ -194,12 +173,23 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect }: { drivers: Wor
               </div>
             </div>
             
-            <CardContent className="p-4 text-center">
-              <div className="space-y-2">
-                <div className="text-2xl font-bold text-black">{driver.violations} Violations</div>
-                <Badge className="text-lg px-3 py-1 bg-black text-yellow-400 hover:bg-gray-800">
-                  {driver.points} Donkey Points
-                </Badge>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-mono font-bold text-sm text-black">{driver.id}</h3>
+                <div className="flex items-center space-x-2">
+                  <Link
+                    href={`/driver/${driver.id}`}
+                    className="bg-gray-200 hover:bg-gray-300 rounded-full p-2 transition-colors"
+                  >
+                    <Car className="h-5 w-5 text-black" />
+                  </Link>
+                  <button
+                    onClick={() => onVideoSelect(driver)}
+                    className="bg-gray-200 hover:bg-gray-300 rounded-full p-2 transition-colors"
+                  >
+                    <Maximize2 className="h-5 w-5 text-black" />
+                  </button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -510,27 +500,11 @@ export default function LeaderboardPage() {
                     <Badge className={getRankBadge(driver.rank)} >#{driver.rank}</Badge>
                   </div>
                   
-                  {/* External Link and Maximize in top-right */}
-                  <div className="absolute top-3 right-3 z-10 flex space-x-2">
-                    <button
-                      onClick={() => setSelectedVideo(driver)}
-                      className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
-                    >
-                      <Maximize2 className="h-4 w-4 text-white" />
-                    </button>
-                    <Link
-                      href={`/driver/${driver.id}`}
-                      className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
-                    >
-                      <ExternalLink className="h-4 w-4 text-white" />
-                    </Link>
-                  </div>
-                  
-                  {/* Number Plate in bottom-left */}
-                  <div className="absolute bottom-3 left-3 z-10">
-                    <div className="bg-yellow-400 text-black px-2 py-1 rounded font-mono font-bold text-xs">
-                      {driver.id}
-                    </div>
+                  {/* Donkey Points in top-right */}
+                  <div className="absolute top-3 right-3 z-10">
+                    <Badge className="bg-yellow-400 text-black px-2 py-1 text-xs font-bold">
+                      {Math.abs(driver.points)} pts
+                    </Badge>
                   </div>
                   
                   {/* Location in bottom-right */}
@@ -544,11 +518,22 @@ export default function LeaderboardPage() {
 
                 {/* Stats below video */}
                 <CardContent className="p-3">
-                  <div className="text-center space-y-1">
-                    <div className="text-sm font-bold text-black">{driver.violations} Violations</div>
-                    <Badge className="bg-black text-yellow-400 text-xs px-2 py-1">
-                      {driver.points} pts
-                    </Badge>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-mono font-bold text-xs text-black">{driver.id}</h3>
+                    <div className="flex items-center space-x-2">
+                      <Link
+                        href={`/driver/${driver.id}`}
+                        className="bg-gray-200 hover:bg-gray-300 rounded-full p-1.5 transition-colors"
+                      >
+                        <Car className="h-4 w-4 text-black" />
+                      </Link>
+                      <button
+                        onClick={() => setSelectedVideo(driver)}
+                        className="bg-gray-200 hover:bg-gray-300 rounded-full p-1.5 transition-colors"
+                      >
+                        <Maximize2 className="h-4 w-4 text-black" />
+                      </button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
