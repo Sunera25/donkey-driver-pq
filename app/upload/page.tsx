@@ -410,11 +410,7 @@ export default function UploadPage() {
                 <Button
                   type="submit"
                   disabled={
-                    isSubmitting ||
-                    !mediaFile ||
-                    !formData.violationType ||
-                    !formData.location ||
-                    !formData.description
+                    isSubmitting || !mediaFile || !formData.violationType
                   }
                   className="w-full bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-black font-semibold py-2.5 md:py-3 text-base md:text-lg rounded-xl mt-2 md:mt-4 h-12 md:h-14 touch-manipulation transition-colors duration-200"
                 >
