@@ -116,14 +116,15 @@ export const leaderboardAPI = {
       return response.data
         .slice(0, 8)
         .map((user: any, index: number) => ({
-          id: `DD${(index + 1).toString().padStart(3, "0")}`,
+          id: `${["CAB", "WP", "KY", "GP", "NC"][index % 5]}-${Math.floor(Math.random() * 9000) + 1000}`,
           violations: Math.floor(Math.random() * 15) + 5,
           points: -(Math.floor(Math.random() * 30) + 15),
           location: ["Colombo", "Kandy", "Galle", "Negombo", "Matara"][index % 5],
           lastViolation: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-          rank: index + 1,
+          rank: 0, // Will be set after sorting
         }))
-        .sort((a, b) => b.violations - a.violations)
+        .sort((a, b) => b.violations - a.violations) // Sort by violations descending
+        .map((driver, index) => ({ ...driver, rank: index + 1 })) // Assign correct rank
     } catch (error) {
       console.error("Error fetching worst drivers:", error)
       throw error

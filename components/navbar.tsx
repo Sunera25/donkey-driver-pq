@@ -73,10 +73,10 @@ export function Navbar() {
               <Button
                 onClick={handleCameraClick}
                 disabled={isCapturing}
-                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold p-3 rounded-full"
+                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold p-4 rounded-full"
                 size="lg"
               >
-                <Camera className="h-6 w-6" />
+                <Camera className="h-8 w-8" />
               </Button>
 
               {/* Hidden camera input */}
@@ -149,10 +149,10 @@ export function Navbar() {
             <Button
               onClick={handleCameraClick}
               disabled={isCapturing}
-              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold p-4 rounded-full shadow-lg"
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold p-5 rounded-full shadow-lg"
               size="lg"
             >
-              <Camera className="h-7 w-7" />
+              <Camera className="h-9 w-9" />
             </Button>
 
             {/* Right Side */}

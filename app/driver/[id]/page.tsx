@@ -129,6 +129,12 @@ export default function DriverDetailsPage() {
           </Link>
         </div>
 
+        {/* Application Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-black">Donkey Driver</h1>
+          <p className="text-gray-600">Traffic Violation Reporting System</p>
+        </div>
+
         {/* Driver Summary */}
         <Card className="mb-8 border-2 border-yellow-400 rounded-2xl">
           <CardHeader className="bg-black text-yellow-400 p-6 rounded-t-2xl">

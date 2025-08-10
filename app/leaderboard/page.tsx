@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle } from "lucide-react"
+import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle, ExternalLink } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { leaderboardAPI, type WorstDriver } from "@/lib/api"
 import Link from "next/link"
@@ -87,6 +86,12 @@ export default function LeaderboardPage() {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
+        {/* Application Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-black">Donkey Driver</h1>
+          <p className="text-gray-600">Traffic Violation Reporting System</p>
+        </div>
+
         {/* Page Title */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
@@ -96,67 +101,43 @@ export default function LeaderboardPage() {
           <p className="text-gray-600 text-lg">Public accountability for repeat traffic offenders</p>
         </div>
 
-        {/* Mobile Filter Button */}
+        {/* Mobile Sort Options */}
         <div className="md:hidden mb-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold">
-                <Filter className="h-5 w-5 mr-2" />
-                Filter & Sort
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="rounded-t-2xl">
-              <SheetHeader>
-                <SheetTitle>Filter & Sort Options</SheetTitle>
-              </SheetHeader>
-              <div className="space-y-4 mt-6">
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">Time Period</label>
-                  <Select value={timeFilter} onValueChange={setTimeFilter}>
-                    <SelectTrigger className="border-black">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Time</SelectItem>
-                      <SelectItem value="month">This Month</SelectItem>
-                      <SelectItem value="week">This Week</SelectItem>
-                      <SelectItem value="year">This Year</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">Location</label>
-                  <Select value={locationFilter} onValueChange={setLocationFilter}>
-                    <SelectTrigger className="border-black">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Locations</SelectItem>
-                      <SelectItem value="colombo">Colombo</SelectItem>
-                      <SelectItem value="kandy">Kandy</SelectItem>
-                      <SelectItem value="galle">Galle</SelectItem>
-                      <SelectItem value="negombo">Negombo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">Sort By</label>
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="border-black">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="violations">Most Violations</SelectItem>
-                      <SelectItem value="points">Donkey Points</SelectItem>
-                      <SelectItem value="recent">Most Recent</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Button
+              variant={sortBy === "violations" ? "default" : "outline"}
+              onClick={() => setSortBy("violations")}
+              className={`${
+                sortBy === "violations"
+                  ? "bg-yellow-400 text-black"
+                  : "border-black text-black hover:bg-yellow-400 hover:text-black"
+              } rounded-full`}
+            >
+              Most Violations
+            </Button>
+            <Button
+              variant={sortBy === "points" ? "default" : "outline"}
+              onClick={() => setSortBy("points")}
+              className={`${
+                sortBy === "points"
+                  ? "bg-yellow-400 text-black"
+                  : "border-black text-black hover:bg-yellow-400 hover:text-black"
+              } rounded-full`}
+            >
+              Donkey Points
+            </Button>
+            <Button
+              variant={sortBy === "recent" ? "default" : "outline"}
+              onClick={() => setSortBy("recent")}
+              className={`${
+                sortBy === "recent"
+                  ? "bg-yellow-400 text-black"
+                  : "border-black text-black hover:bg-yellow-400 hover:text-black"
+              } rounded-full`}
+            >
+              Most Recent
+            </Button>
+          </div>
         </div>
 
         {/* Desktop Filters */}
@@ -224,15 +205,27 @@ export default function LeaderboardPage() {
             {worstDrivers.slice(0, 3).map((driver, index) => (
               <Card
                 key={driver.id}
-                className={`border-4 ${index === 0 ? "border-red-500 transform scale-105" : index === 1 ? "border-orange-500" : "border-yellow-500"} shadow-xl rounded-2xl`}
+                className={`border-4 ${
+                  index === 0
+                    ? "border-red-500 transform scale-105"
+                    : index === 1
+                      ? "border-orange-500"
+                      : "border-yellow-500"
+                } shadow-xl rounded-2xl`}
               >
                 <CardHeader
-                  className={`${index === 0 ? "bg-red-500" : index === 1 ? "bg-orange-500" : "bg-yellow-500"} text-white text-center p-4 rounded-t-2xl`}
+                  className={`${
+                    index === 0 ? "bg-red-500" : index === 1 ? "bg-orange-500" : "bg-yellow-500"
+                  } text-white text-center p-4 rounded-t-2xl`}
                 >
                   <div className="flex justify-center mb-2">{getRankIcon(driver.rank)}</div>
                   <CardTitle className="text-2xl">
-                    <Link href={`/driver/${driver.id}`} className="hover:underline cursor-pointer">
-                      {driver.id}
+                    <Link
+                      href={`/driver/${driver.id}`}
+                      className="hover:underline cursor-pointer flex items-center justify-center space-x-2"
+                    >
+                      <span>{driver.id}</span>
+                      <ExternalLink className="h-5 w-5" />
                     </Link>
                   </CardTitle>
                 </CardHeader>
@@ -284,9 +277,10 @@ export default function LeaderboardPage() {
                       <td className="px-4 py-4 font-mono font-bold text-black">
                         <Link
                           href={`/driver/${driver.id}`}
-                          className="hover:text-yellow-600 hover:underline cursor-pointer"
+                          className="hover:text-yellow-600 hover:underline cursor-pointer flex items-center space-x-2"
                         >
-                          {driver.id}
+                          <span>{driver.id}</span>
+                          <ExternalLink className="h-4 w-4 text-gray-500" />
                         </Link>
                       </td>
                       <td className="px-4 py-4 text-center">

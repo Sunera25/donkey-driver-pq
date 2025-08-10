@@ -43,41 +43,41 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="bg-black text-yellow-400 py-16">
-        <div className="container mx-auto px-4">
-          <h3 className="text-3xl font-bold text-center mb-12">How It Works</h3>
+      <section className="bg-black text-yellow-400 py-20 -mx-4">
+        <div className="container mx-auto px-8">
+          <h3 className="text-3xl font-bold text-center mb-16">How It Works</h3>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="bg-yellow-400 text-black border-0">
-              <CardHeader className="text-center">
-                <Camera className="h-12 w-12 mx-auto mb-4" />
-                <CardTitle>Capture Evidence</CardTitle>
+            <Card className="bg-yellow-400 text-black border-0 rounded-2xl transform hover:scale-105 transition-transform">
+              <CardHeader className="text-center p-8">
+                <Camera className="h-16 w-16 mx-auto mb-6" />
+                <CardTitle className="text-xl">Capture Evidence</CardTitle>
               </CardHeader>
-              <CardContent>
-                <CardDescription className="text-black/80">
+              <CardContent className="px-8 pb-8">
+                <CardDescription className="text-black/80 text-base">
                   Use your phone camera to record traffic violations in real-time or upload existing footage.
                 </CardDescription>
               </CardContent>
             </Card>
 
-            <Card className="bg-yellow-400 text-black border-0">
-              <CardHeader className="text-center">
-                <Shield className="h-12 w-12 mx-auto mb-4" />
-                <CardTitle>Police Review</CardTitle>
+            <Card className="bg-yellow-400 text-black border-0 rounded-2xl transform hover:scale-105 transition-transform">
+              <CardHeader className="text-center p-8">
+                <Shield className="h-16 w-16 mx-auto mb-6" />
+                <CardTitle className="text-xl">Police Review</CardTitle>
               </CardHeader>
-              <CardContent>
-                <CardDescription className="text-black/80">
+              <CardContent className="px-8 pb-8">
+                <CardDescription className="text-black/80 text-base">
                   Law enforcement reviews and validates reported violations for appropriate action.
                 </CardDescription>
               </CardContent>
             </Card>
 
-            <Card className="bg-yellow-400 text-black border-0">
-              <CardHeader className="text-center">
-                <Users className="h-12 w-12 mx-auto mb-4" />
-                <CardTitle>Public Accountability</CardTitle>
+            <Card className="bg-yellow-400 text-black border-0 rounded-2xl transform hover:scale-105 transition-transform">
+              <CardHeader className="text-center p-8">
+                <Users className="h-16 w-16 mx-auto mb-6" />
+                <CardTitle className="text-xl">Public Accountability</CardTitle>
               </CardHeader>
-              <CardContent>
-                <CardDescription className="text-black/80">
+              <CardContent className="px-8 pb-8">
+                <CardDescription className="text-black/80 text-base">
                   Track repeat offenders on our public leaderboard to promote safer driving habits.
                 </CardDescription>
               </CardContent>
@@ -87,24 +87,25 @@ export default function HomePage() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 bg-yellow-50">
-        <div className="container mx-auto px-4">
+      <section className="py-20 bg-gradient-to-r from-yellow-50 via-yellow-100 to-yellow-50 -mx-4">
+        <div className="container mx-auto px-8">
+          <h3 className="text-3xl font-bold text-center text-black mb-12">Our Impact</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
+            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
               <div className="text-4xl font-bold text-black mb-2">1,247</div>
-              <div className="text-gray-600">Reports Submitted</div>
+              <div className="text-gray-600 font-medium">Reports Submitted</div>
             </div>
-            <div>
+            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
               <div className="text-4xl font-bold text-black mb-2">892</div>
-              <div className="text-gray-600">Violations Confirmed</div>
+              <div className="text-gray-600 font-medium">Violations Confirmed</div>
             </div>
-            <div>
+            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
               <div className="text-4xl font-bold text-black mb-2">156</div>
-              <div className="text-gray-600">Repeat Offenders</div>
+              <div className="text-gray-600 font-medium">Repeat Offenders</div>
             </div>
-            <div>
+            <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
               <div className="text-4xl font-bold text-black mb-2">23%</div>
-              <div className="text-gray-600">Accident Reduction</div>
+              <div className="text-gray-600 font-medium">Accident Reduction</div>
             </div>
           </div>
         </div>
