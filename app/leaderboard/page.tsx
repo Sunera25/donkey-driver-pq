@@ -43,10 +43,10 @@ export default function LeaderboardPage() {
   }
 
   const getRankBadge = (rank: number) => {
-    if (rank === 1) return "bg-red-500 text-white"
-    if (rank === 2) return "bg-orange-500 text-white"
-    if (rank === 3) return "bg-yellow-500 text-black"
-    return "bg-gray-500 text-white"
+    if (rank === 1) return "bg-yellow-500 text-black"
+    if (rank === 2) return "bg-yellow-400 text-black"
+    if (rank === 3) return "bg-yellow-300 text-black"
+    return "bg-black text-yellow-400"
   }
 
   if (loading) {
@@ -89,7 +89,7 @@ export default function LeaderboardPage() {
         {/* Application Header */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-black">Donkey Driver</h1>
-          <p className="text-gray-600">Traffic Violation Reporting System</p>
+          <p className="text-gray-600 hidden md:block">Traffic Violation Reporting System</p>
         </div>
 
         {/* Page Title */}
@@ -98,7 +98,39 @@ export default function LeaderboardPage() {
             <TrendingDown className="h-10 w-10 text-black" />
             <h2 className="text-4xl font-bold text-black">Worst Drivers</h2>
           </div>
-          <p className="text-gray-600 text-lg">Public accountability for repeat traffic offenders</p>
+          <p className="text-gray-600 text-lg hidden md:block">Public accountability for repeat traffic offenders</p>
+        </div>
+
+        {/* Stats Summary - Moved to top and made smaller */}
+        <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Card className="text-center border-yellow-400 rounded-xl">
+            <CardContent className="p-3">
+              <div className="text-xl font-bold text-black">{worstDrivers.length}</div>
+              <div className="text-gray-600 text-sm">Total Offenders</div>
+            </CardContent>
+          </Card>
+          <Card className="text-center border-yellow-400 rounded-xl">
+            <CardContent className="p-3">
+              <div className="text-xl font-bold text-black">
+                {worstDrivers.reduce((sum, driver) => sum + driver.violations, 0)}
+              </div>
+              <div className="text-gray-600 text-sm">Total Violations</div>
+            </CardContent>
+          </Card>
+          <Card className="text-center border-yellow-400 rounded-xl">
+            <CardContent className="p-3">
+              <div className="text-xl font-bold text-black">
+                {worstDrivers.reduce((sum, driver) => sum + driver.points, 0)}
+              </div>
+              <div className="text-gray-600 text-sm">Total Donkey Points</div>
+            </CardContent>
+          </Card>
+          <Card className="text-center border-yellow-400 rounded-xl">
+            <CardContent className="p-3">
+              <div className="text-xl font-bold text-black">23%</div>
+              <div className="text-gray-600 text-sm">Repeat Rate</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Mobile Sort Options */}
@@ -205,24 +237,24 @@ export default function LeaderboardPage() {
             {worstDrivers.slice(0, 3).map((driver, index) => (
               <Card
                 key={driver.id}
-                className={`border-4 ${
+                className={`border-3 ${
                   index === 0
-                    ? "border-red-500 transform scale-105"
+                    ? "border-yellow-500 transform scale-105 bg-yellow-50"
                     : index === 1
-                      ? "border-orange-500"
-                      : "border-yellow-500"
-                } shadow-xl rounded-2xl`}
+                      ? "border-yellow-400 bg-yellow-25"
+                      : "border-yellow-300 bg-white"
+                } shadow-lg rounded-2xl`}
               >
                 <CardHeader
                   className={`${
-                    index === 0 ? "bg-red-500" : index === 1 ? "bg-orange-500" : "bg-yellow-500"
-                  } text-white text-center p-4 rounded-t-2xl`}
+                    index === 0 ? "bg-yellow-500" : index === 1 ? "bg-yellow-400" : "bg-yellow-300"
+                  } text-black text-center p-4 rounded-t-2xl`}
                 >
                   <div className="flex justify-center mb-2">{getRankIcon(driver.rank)}</div>
                   <CardTitle className="text-2xl">
                     <Link
                       href={`/driver/${driver.id}`}
-                      className="hover:underline cursor-pointer flex items-center justify-center space-x-2"
+                      className="hover:underline cursor-pointer flex items-center justify-center space-x-2 text-black hover:text-gray-800"
                     >
                       <span>{driver.id}</span>
                       <ExternalLink className="h-5 w-5" />
@@ -233,7 +265,7 @@ export default function LeaderboardPage() {
                   <div className="space-y-3">
                     <div className="text-3xl font-bold text-black">{driver.violations}</div>
                     <div className="text-gray-600">Violations</div>
-                    <Badge variant="destructive" className="text-lg px-3 py-1">
+                    <Badge className="text-lg px-3 py-1 bg-black text-yellow-400 hover:bg-gray-800">
                       {driver.points} Donkey Points
                     </Badge>
                     <div className="flex items-center justify-center space-x-1 text-sm text-gray-600">
@@ -287,7 +319,7 @@ export default function LeaderboardPage() {
                         <span className="text-2xl font-bold text-red-600">{driver.violations}</span>
                       </td>
                       <td className="px-4 py-4 text-center">
-                        <Badge variant="destructive" className="text-lg">
+                        <Badge className="text-lg bg-black text-yellow-400 hover:bg-gray-800">
                           {driver.points}
                         </Badge>
                       </td>
@@ -310,38 +342,6 @@ export default function LeaderboardPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Stats Summary */}
-        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="text-center border-yellow-400 rounded-2xl">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-black">{worstDrivers.length}</div>
-              <div className="text-gray-600">Total Offenders</div>
-            </CardContent>
-          </Card>
-          <Card className="text-center border-yellow-400 rounded-2xl">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-black">
-                {worstDrivers.reduce((sum, driver) => sum + driver.violations, 0)}
-              </div>
-              <div className="text-gray-600">Total Violations</div>
-            </CardContent>
-          </Card>
-          <Card className="text-center border-yellow-400 rounded-2xl">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-black">
-                {worstDrivers.reduce((sum, driver) => sum + driver.points, 0)}
-              </div>
-              <div className="text-gray-600">Total Donkey Points</div>
-            </CardContent>
-          </Card>
-          <Card className="text-center border-yellow-400 rounded-2xl">
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-black">23%</div>
-              <div className="text-gray-600">Repeat Rate</div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   )
