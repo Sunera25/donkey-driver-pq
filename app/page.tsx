@@ -6,7 +6,7 @@ import { Navbar } from "@/components/navbar"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white pb-20 md:pb-0">
       <Navbar />
 
       {/* Hero Section */}

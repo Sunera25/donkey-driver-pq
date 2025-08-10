@@ -39,7 +39,7 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white pb-20 md:pb-0">
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
@@ -54,7 +54,7 @@ export default function LeaderboardPage() {
 
         {/* Filters */}
         <Card className="mb-8 border-2 border-yellow-400">
-          <CardHeader className="bg-yellow-400 text-black pb-4">
+          <CardHeader className="bg-yellow-400 text-black py-3">
             <CardTitle className="flex items-center space-x-2">
               <Filter className="h-5 w-5" />
               <span>Filter & Sort</span>
@@ -111,7 +111,7 @@ export default function LeaderboardPage() {
         </Card>
 
         {/* Top 3 Podium */}
-        <div className="mb-12">
+        <div className="mb-8">
           <h3 className="text-2xl font-bold text-center text-black mb-8">Hall of Shame - Top 3</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {worstDrivers.slice(0, 3).map((driver, index) => (
@@ -145,7 +145,7 @@ export default function LeaderboardPage() {
 
         {/* Full Leaderboard */}
         <Card className="border-2 border-yellow-400">
-          <CardHeader className="bg-black text-yellow-400 pb-4">
+          <CardHeader className="bg-black text-yellow-400 py-3">
             <CardTitle className="text-xl">Complete Rankings</CardTitle>
           </CardHeader>
           <CardContent className="p-0">

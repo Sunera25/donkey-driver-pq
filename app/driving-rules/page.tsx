@@ -85,7 +85,7 @@ const drivingRules = [
 
 export default function DrivingRulesPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white pb-20 md:pb-0">
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
@@ -136,7 +136,7 @@ export default function DrivingRulesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {drivingRules.map((rule, index) => (
               <Card key={index} className="border-2 border-yellow-400">
-                <CardHeader className="bg-black text-yellow-400 pb-4">
+                <CardHeader className="bg-black text-yellow-400 py-3">
                   <CardTitle className="flex items-center space-x-2">
                     {rule.icon}
                     <span>{rule.title}</span>
@@ -166,7 +166,7 @@ export default function DrivingRulesPage() {
           <div className="space-y-8">
             {trafficSigns.map((category, index) => (
               <Card key={index} className="border-2 border-yellow-400">
-                <CardHeader className={`${category.color} text-white pb-4`}>
+                <CardHeader className={`${category.color} text-white py-3`}>
                   <CardTitle className="text-xl">{category.category}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
@@ -197,7 +197,7 @@ export default function DrivingRulesPage() {
 
         {/* Important Reminders */}
         <Card className="border-2 border-red-500 bg-red-50">
-          <CardHeader className="bg-red-500 text-white pb-4">
+          <CardHeader className="bg-red-500 text-white py-3">
             <CardTitle className="flex items-center space-x-2">
               <AlertTriangle className="h-6 w-6" />
               <span>Important Reminders</span>
