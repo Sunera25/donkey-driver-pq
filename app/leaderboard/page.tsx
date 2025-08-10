@@ -1,14 +1,164 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle, ExternalLink } from "lucide-react"
+import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle, ExternalLink, Play } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { leaderboardAPI, type WorstDriver } from "@/lib/api"
 import Link from "next/link"
+
+// Carousel Component for Top 3
+function CarouselSection({ drivers, getRankIcon }: { drivers: WorstDriver[], getRankIcon: (rank: number) => JSX.Element }) {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    if (drivers.length > 1) {
+      intervalRef.current = setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % drivers.length)
+      }, 3000) // Auto-slide every 3 seconds
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [drivers.length])
+
+  const handleManualSlide = (index: number) => {
+    setCurrentIndex(index)
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      // Restart auto-sliding after manual interaction
+      intervalRef.current = setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % drivers.length)
+      }, 3000)
+    }
+  }
+
+  if (drivers.length === 0) return null
+
+  return (
+    <div className="mb-8">
+      <h3 className="text-2xl font-bold text-center text-black mb-8">Hall of Shame - Top 3</h3>
+      
+      {/* Mobile Carousel */}
+      <div className="md:hidden relative">
+        <div className="overflow-hidden">
+          <div 
+            className="flex transition-transform duration-500 ease-in-out"
+            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          >
+            {drivers.map((driver, index) => (
+              <div key={driver.id} className="w-full flex-shrink-0 px-4">
+                <Card className={`border-3 ${
+                  driver.rank === 1
+                    ? "border-yellow-500 bg-yellow-50"
+                    : driver.rank === 2
+                      ? "border-yellow-400 bg-yellow-25"
+                      : "border-yellow-300 bg-white"
+                } shadow-lg rounded-2xl`}>
+                  <CardHeader className={`${
+                    driver.rank === 1 ? "bg-yellow-500" : driver.rank === 2 ? "bg-yellow-400" : "bg-yellow-300"
+                  } text-black text-center p-4 rounded-t-2xl`}>
+                    <div className="flex justify-center mb-2">{getRankIcon(driver.rank)}</div>
+                    <CardTitle className="text-2xl">
+                      <Link
+                        href={`/driver/${driver.id}`}
+                        className="hover:underline cursor-pointer flex items-center justify-center space-x-2 text-black hover:text-gray-800 transition-colors"
+                      >
+                        <span>{driver.id}</span>
+                        <ExternalLink className="h-5 w-5" />
+                      </Link>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 text-center">
+                    <div className="space-y-3">
+                      <div className="text-3xl font-bold text-black">{driver.violations}</div>
+                      <div className="text-gray-600">Violations</div>
+                      <Badge className="text-lg px-3 py-1 bg-black text-yellow-400 hover:bg-gray-800">
+                        {driver.points} Donkey Points
+                      </Badge>
+                      <div className="flex items-center justify-center space-x-1 text-sm text-gray-600">
+                        <MapPin className="h-4 w-4" />
+                        <span>{driver.location}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Carousel Indicators */}
+        {drivers.length > 1 && (
+          <div className="flex justify-center space-x-2 mt-4">
+            {drivers.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => handleManualSlide(index)}
+                className={`w-3 h-3 rounded-full transition-colors ${
+                  index === currentIndex ? "bg-yellow-500" : "bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Grid */}
+      <div className="hidden md:grid grid-cols-3 gap-6 max-w-4xl mx-auto">
+        {drivers.map((driver, index) => (
+          <Card
+            key={driver.id}
+            className={`border-3 ${
+              index === 0
+                ? "border-yellow-500 transform scale-105 bg-yellow-50"
+                : index === 1
+                  ? "border-yellow-400 bg-yellow-25"
+                  : "border-yellow-300 bg-white"
+            } shadow-lg rounded-2xl`}
+          >
+            <CardHeader
+              className={`${
+                index === 0 ? "bg-yellow-500" : index === 1 ? "bg-yellow-400" : "bg-yellow-300"
+              } text-black text-center p-4 rounded-t-2xl`}
+            >
+              <div className="flex justify-center mb-2">{getRankIcon(driver.rank)}</div>
+              <CardTitle className="text-2xl">
+                <Link
+                  href={`/driver/${driver.id}`}
+                  className="hover:underline cursor-pointer flex items-center justify-center space-x-2 text-black hover:text-gray-800 transition-colors"
+                >
+                  <span>{driver.id}</span>
+                  <ExternalLink className="h-5 w-5" />
+                </Link>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 text-center">
+              <div className="space-y-3">
+                <div className="text-3xl font-bold text-black">{driver.violations}</div>
+                <div className="text-gray-600">Violations</div>
+                <Badge className="text-lg px-3 py-1 bg-black text-yellow-400 hover:bg-gray-800">
+                  {driver.points} Donkey Points
+                </Badge>
+                <div className="flex items-center justify-center space-x-1 text-sm text-gray-600">
+                  <MapPin className="h-4 w-4" />
+                  <span>{driver.location}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default function LeaderboardPage() {
   const [worstDrivers, setWorstDrivers] = useState<WorstDriver[]>([])
@@ -86,20 +236,6 @@ export default function LeaderboardPage() {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
-        {/* Application Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-black">Donkey Driver</h1>
-          <p className="text-gray-600 hidden md:block">Traffic Violation Reporting System</p>
-        </div>
-
-        {/* Page Title */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <TrendingDown className="h-10 w-10 text-black" />
-            <h2 className="text-4xl font-bold text-black">Worst Drivers</h2>
-          </div>
-          <p className="text-gray-600 text-lg hidden md:block">Public accountability for repeat traffic offenders</p>
-        </div>
 
         {/* Stats Summary - Moved to top and made smaller */}
         <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -133,215 +269,155 @@ export default function LeaderboardPage() {
           </Card>
         </div>
 
-        {/* Mobile Sort Options */}
-        <div className="md:hidden mb-6">
-          <div className="flex flex-wrap gap-2 justify-center">
-            <Button
-              variant={sortBy === "violations" ? "default" : "outline"}
-              onClick={() => setSortBy("violations")}
-              className={`${
-                sortBy === "violations"
-                  ? "bg-yellow-400 text-black"
-                  : "border-black text-black hover:bg-yellow-400 hover:text-black"
-              } rounded-full`}
-            >
-              Most Violations
-            </Button>
-            <Button
-              variant={sortBy === "points" ? "default" : "outline"}
-              onClick={() => setSortBy("points")}
-              className={`${
-                sortBy === "points"
-                  ? "bg-yellow-400 text-black"
-                  : "border-black text-black hover:bg-yellow-400 hover:text-black"
-              } rounded-full`}
-            >
-              Donkey Points
-            </Button>
-            <Button
-              variant={sortBy === "recent" ? "default" : "outline"}
-              onClick={() => setSortBy("recent")}
-              className={`${
-                sortBy === "recent"
-                  ? "bg-yellow-400 text-black"
-                  : "border-black text-black hover:bg-yellow-400 hover:text-black"
-              } rounded-full`}
-            >
-              Most Recent
-            </Button>
-          </div>
-        </div>
 
-        {/* Desktop Filters */}
-        <Card className="mb-8 border-2 border-yellow-400 hidden md:block rounded-2xl">
-          <CardHeader className="bg-yellow-400 text-black p-4 rounded-t-2xl">
-            <CardTitle className="flex items-center space-x-2">
-              <Filter className="h-5 w-5" />
-              <span>Filter & Sort</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-black mb-2">Time Period</label>
-                <Select value={timeFilter} onValueChange={setTimeFilter}>
-                  <SelectTrigger className="border-black">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
-                    <SelectItem value="month">This Month</SelectItem>
-                    <SelectItem value="week">This Week</SelectItem>
-                    <SelectItem value="year">This Year</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+        {/* Top 3 Carousel */}
+        <CarouselSection drivers={worstDrivers.slice(0, 3)} getRankIcon={getRankIcon} />
 
-              <div>
-                <label className="block text-sm font-medium text-black mb-2">Location</label>
-                <Select value={locationFilter} onValueChange={setLocationFilter}>
-                  <SelectTrigger className="border-black">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Locations</SelectItem>
-                    <SelectItem value="colombo">Colombo</SelectItem>
-                    <SelectItem value="kandy">Kandy</SelectItem>
-                    <SelectItem value="galle">Galle</SelectItem>
-                    <SelectItem value="negombo">Negombo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-black mb-2">Sort By</label>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="border-black">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="violations">Most Violations</SelectItem>
-                    <SelectItem value="points">Donkey Points</SelectItem>
-                    <SelectItem value="recent">Most Recent</SelectItem>
-                  </SelectContent>
-                </Select>
+        {/* Full Leaderboard - Card Grid */}
+        <div className="mb-8">
+          <h3 className="text-2xl font-bold text-center text-black mb-6">Complete Rankings</h3>
+          
+          {/* Compact Filters */}
+          <div className="mb-6">
+            {/* Mobile Sort Options */}
+            <div className="md:hidden mb-4">
+              <div className="flex flex-wrap gap-2 justify-center">
+                <Button
+                  variant={sortBy === "violations" ? "default" : "outline"}
+                  onClick={() => setSortBy("violations")}
+                  className={`text-xs px-3 py-1 ${
+                    sortBy === "violations"
+                      ? "bg-yellow-400 text-black"
+                      : "border-black text-black hover:bg-yellow-400 hover:text-black"
+                  } rounded-full`}
+                >
+                  Most Violations
+                </Button>
+                <Button
+                  variant={sortBy === "points" ? "default" : "outline"}
+                  onClick={() => setSortBy("points")}
+                  className={`text-xs px-3 py-1 ${
+                    sortBy === "points"
+                      ? "bg-yellow-400 text-black"
+                      : "border-black text-black hover:bg-yellow-400 hover:text-black"
+                  } rounded-full`}
+                >
+                  Donkey Points
+                </Button>
+                <Button
+                  variant={sortBy === "recent" ? "default" : "outline"}
+                  onClick={() => setSortBy("recent")}
+                  className={`text-xs px-3 py-1 ${
+                    sortBy === "recent"
+                      ? "bg-yellow-400 text-black"
+                      : "border-black text-black hover:bg-yellow-400 hover:text-black"
+                  } rounded-full`}
+                >
+                  Most Recent
+                </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Top 3 Podium */}
-        <div className="mb-8">
-          <h3 className="text-2xl font-bold text-center text-black mb-8">Hall of Shame - Top 3</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {worstDrivers.slice(0, 3).map((driver, index) => (
+            {/* Desktop Compact Filters */}
+            <div className="hidden md:block">
+              <div className="flex justify-center space-x-4 text-sm">
+                <div>
+                  <Select value={timeFilter} onValueChange={setTimeFilter}>
+                    <SelectTrigger className="w-32 h-8 text-xs border-gray-300">
+                      <SelectValue placeholder="Time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Time</SelectItem>
+                      <SelectItem value="month">This Month</SelectItem>
+                      <SelectItem value="week">This Week</SelectItem>
+                      <SelectItem value="year">This Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Select value={locationFilter} onValueChange={setLocationFilter}>
+                    <SelectTrigger className="w-32 h-8 text-xs border-gray-300">
+                      <SelectValue placeholder="Location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Locations</SelectItem>
+                      <SelectItem value="colombo">Colombo</SelectItem>
+                      <SelectItem value="kandy">Kandy</SelectItem>
+                      <SelectItem value="galle">Galle</SelectItem>
+                      <SelectItem value="negombo">Negombo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-32 h-8 text-xs border-gray-300">
+                      <SelectValue placeholder="Sort" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="violations">Most Violations</SelectItem>
+                      <SelectItem value="points">Donkey Points</SelectItem>
+                      <SelectItem value="recent">Most Recent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {worstDrivers.map((driver, index) => (
               <Card
                 key={driver.id}
-                className={`border-3 ${
-                  index === 0
-                    ? "border-yellow-500 transform scale-105 bg-yellow-50"
-                    : index === 1
-                      ? "border-yellow-400 bg-yellow-25"
-                      : "border-yellow-300 bg-white"
-                } shadow-lg rounded-2xl`}
+                className={`border-2 ${
+                  index < 3 ? "border-yellow-400 bg-yellow-50" : "border-gray-200 bg-white"
+                } shadow-md rounded-xl hover:shadow-lg transition-shadow`}
               >
-                <CardHeader
-                  className={`${
-                    index === 0 ? "bg-yellow-500" : index === 1 ? "bg-yellow-400" : "bg-yellow-300"
-                  } text-black text-center p-4 rounded-t-2xl`}
-                >
-                  <div className="flex justify-center mb-2">{getRankIcon(driver.rank)}</div>
-                  <CardTitle className="text-2xl">
-                    <Link
-                      href={`/driver/${driver.id}`}
-                      className="hover:underline cursor-pointer flex items-center justify-center space-x-2 text-black hover:text-gray-800"
-                    >
-                      <span>{driver.id}</span>
-                      <ExternalLink className="h-5 w-5" />
-                    </Link>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 text-center">
-                  <div className="space-y-3">
-                    <div className="text-3xl font-bold text-black">{driver.violations}</div>
-                    <div className="text-gray-600">Violations</div>
-                    <Badge className="text-lg px-3 py-1 bg-black text-yellow-400 hover:bg-gray-800">
-                      {driver.points} Donkey Points
+                {/* Video Section */}
+                <div className="relative bg-black rounded-t-xl h-40 flex items-center justify-center">
+                  {/* Placeholder for video thumbnail - you can replace this with actual video */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 rounded-t-xl"></div>
+                  <button className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-3 transition-colors">
+                    <Play className="h-6 w-6 text-black fill-black" />
+                  </button>
+                  
+                  {/* Rank Badge in top-left */}
+                  <div className="absolute top-3 left-3 z-10">
+                    <Badge className={getRankBadge(driver.rank)} >#{driver.rank}</Badge>
+                  </div>
+                  
+                  {/* External Link in top-right */}
+                  <Link
+                    href={`/driver/${driver.id}`}
+                    className="absolute top-3 right-3 z-10 bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
+                  >
+                    <ExternalLink className="h-4 w-4 text-white" />
+                  </Link>
+                  
+                  {/* Donkey Points in bottom-right */}
+                  <div className="absolute bottom-3 right-3 z-10">
+                    <Badge className="bg-yellow-400 text-black text-xs px-2 py-1">
+                      {driver.points} pts
                     </Badge>
-                    <div className="flex items-center justify-center space-x-1 text-sm text-gray-600">
-                      <MapPin className="h-4 w-4" />
-                      <span>{driver.location}</span>
-                    </div>
+                  </div>
+                </div>
+
+                {/* Number Plate */}
+                <CardContent className="p-3">
+                  <div className="text-center">
+                    <CardTitle className="text-sm font-mono font-bold text-black">
+                      <Link
+                        href={`/driver/${driver.id}`}
+                        className="hover:underline cursor-pointer hover:text-yellow-600 transition-colors"
+                      >
+                        {driver.id}
+                      </Link>
+                    </CardTitle>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
-
-        {/* Full Leaderboard */}
-        <Card className="border-2 border-yellow-400 rounded-2xl">
-          <CardHeader className="bg-black text-yellow-400 p-4 rounded-t-2xl">
-            <CardTitle className="text-xl">Complete Rankings</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-yellow-400 text-black">
-                  <tr>
-                    <th className="px-4 py-3 text-left">Rank</th>
-                    <th className="px-4 py-3 text-left">Number Plate</th>
-                    <th className="px-4 py-3 text-center">Violations</th>
-                    <th className="px-4 py-3 text-center">Donkey Points</th>
-                    <th className="px-4 py-3 text-left">Location</th>
-                    <th className="px-4 py-3 text-left">Last Violation</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {worstDrivers.map((driver, index) => (
-                    <tr key={driver.id} className={`border-b hover:bg-yellow-50 ${index < 3 ? "bg-red-50" : ""}`}>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center space-x-2">
-                          {getRankIcon(driver.rank)}
-                          <Badge className={getRankBadge(driver.rank)}>#{driver.rank}</Badge>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 font-mono font-bold text-black">
-                        <Link
-                          href={`/driver/${driver.id}`}
-                          className="hover:text-yellow-600 hover:underline cursor-pointer flex items-center space-x-2"
-                        >
-                          <span>{driver.id}</span>
-                          <ExternalLink className="h-4 w-4 text-gray-500" />
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <span className="text-2xl font-bold text-red-600">{driver.violations}</span>
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <Badge className="text-lg bg-black text-yellow-400 hover:bg-gray-800">
-                          {driver.points}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center space-x-1">
-                          <MapPin className="h-4 w-4 text-gray-500" />
-                          <span>{driver.location}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center space-x-1 text-gray-600">
-                          <Calendar className="h-4 w-4" />
-                          <span>{driver.lastViolation}</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )
