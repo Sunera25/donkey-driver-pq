@@ -544,79 +544,86 @@ export default function LeaderboardPage() {
 
       {/* Video Dialog */}
       <Dialog open={!!selectedVideo} onOpenChange={(open) => !open && setSelectedVideo(null)}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+        <DialogContent className="max-w-5xl h-[90vh] md:max-h-[90vh] overflow-hidden p-0 flex flex-col">
           {selectedVideo && (
             <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-mono font-bold">{selectedVideo.id}</span>
-                    <Badge className="bg-yellow-500 text-black">#{selectedVideo.rank}</Badge>
-                    <Badge className="bg-black text-yellow-400">{selectedVideo.points} pts</Badge>
-                  </div>
-                  <div className="flex items-center space-x-1 text-sm text-gray-600">
-                    <MapPin className="h-4 w-4" />
-                    <span>{selectedVideo.location}</span>
+              <DialogHeader className="p-4 md:p-6 md:pb-4 border-b">
+                <DialogTitle className="flex flex-col md:flex-row md:items-center md:justify-between pr-8 gap-2">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-mono font-bold">{selectedVideo.id}</span>
+                      <Badge className="bg-yellow-500 text-black">#{selectedVideo.rank}</Badge>
+                      <Badge className="bg-black text-yellow-400">{Math.abs(selectedVideo.points)} pts</Badge>
+                    </div>
+                    <div className="flex items-center space-x-1 text-sm text-gray-600">
+                      <MapPin className="h-4 w-4" />
+                      <span>{selectedVideo.location}</span>
+                    </div>
                   </div>
                 </DialogTitle>
               </DialogHeader>
               
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+              <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 p-4 md:p-6 overflow-hidden">
                 {/* Video Section */}
-                <div className="lg:col-span-2">
-                  <div className="bg-black rounded-lg h-64 md:h-96 flex items-center justify-center">
+                <div className="lg:col-span-2 h-48 md:h-auto">
+                  <div className="bg-black rounded-lg h-full md:h-96 flex items-center justify-center">
                     <button className="bg-yellow-400 hover:bg-yellow-500 rounded-full p-6 transition-colors">
                       <Play className="h-12 w-12 text-black fill-black" />
                     </button>
                   </div>
-                  
-                  {/* Video Info */}
-                  <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-lg">Violation Details</h3>
-                      <Badge className="bg-red-500 text-white">{selectedVideo.violations} Violations</Badge>
-                    </div>
-                    <p className="text-gray-600">
-                      This driver has been reported multiple times for traffic violations including speeding, 
-                      red light violations, and reckless driving. Latest incident captured on {new Date().toLocaleDateString()}.
-                    </p>
-                  </div>
                 </div>
 
-                {/* Comments Section */}
-                <div className="lg:col-span-1 flex flex-col">
-                  <div className="flex items-center space-x-2 mb-4">
-                    <MessageCircle className="h-5 w-5" />
-                    <h3 className="font-semibold">Comments ({comments[selectedVideo.id]?.length || 0})</h3>
-                  </div>
-                  
-                  {/* Comments List */}
-                  <div className="flex-1 overflow-y-auto max-h-80 space-y-3 mb-4 pr-2">
-                    {comments[selectedVideo.id]?.map((comment) => (
-                      <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium text-sm text-gray-800">{comment.author}</span>
-                          <span className="text-xs text-gray-500">{comment.timestamp}</span>
-                        </div>
-                        <p className="text-sm text-gray-700 mb-2">{comment.comment}</p>
-                        <button 
-                          onClick={() => handleLikeComment(selectedVideo.id, comment.id)}
-                          className="flex items-center space-x-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
-                        >
-                          <Heart className="h-3 w-3" />
-                          <span>{comment.likes}</span>
-                        </button>
+                {/* Scrollable Section - Violation Details and Comments */}
+                <div className="lg:col-span-1 flex flex-col h-full min-h-0">
+                  <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-0">
+                    {/* Video Info */}
+                    <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-semibold text-lg">Violation Details</h3>
+                        <Badge className="bg-red-500 text-white">{selectedVideo.violations} Violations</Badge>
                       </div>
-                    )) || (
-                      <div className="text-center text-gray-500 py-8">
-                        <MessageCircle className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                        <p>No comments yet. Be the first!</p>
+                      <p className="text-gray-600">
+                        This driver has been reported multiple times for traffic violations including speeding, 
+                        red light violations, and reckless driving. Latest incident captured on {new Date().toLocaleDateString()}.
+                      </p>
+                    </div>
+
+                    {/* Comments Section */}
+                    <div className="mb-4">
+                      <div className="flex items-center space-x-2 mb-4">
+                        <MessageCircle className="h-5 w-5" />
+                        <h3 className="font-semibold">Comments ({comments[selectedVideo.id]?.length || 0})</h3>
                       </div>
-                    )}
+                      
+                      {/* Comments List */}
+                      <div className="space-y-3">
+                        {comments[selectedVideo.id]?.map((comment) => (
+                          <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-medium text-sm text-gray-800">{comment.author}</span>
+                              <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                            </div>
+                            <p className="text-sm text-gray-700 mb-2">{comment.comment}</p>
+                            <button 
+                              onClick={() => handleLikeComment(selectedVideo.id, comment.id)}
+                              className="flex items-center space-x-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
+                            >
+                              <Heart className="h-3 w-3" />
+                              <span>{comment.likes}</span>
+                            </button>
+                          </div>
+                        )) || (
+                          <div className="text-center text-gray-500 py-8">
+                            <MessageCircle className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                            <p>No comments yet. Be the first!</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Add Comment */}
-                  <div className="border-t pt-4">
+                  {/* Add Comment - Fixed at bottom */}
+                  <div className="border-t pt-3 md:pt-4 bg-white mt-auto">
                     <div className="flex space-x-2">
                       <input
                         type="text"
