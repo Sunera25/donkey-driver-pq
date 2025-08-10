@@ -97,18 +97,75 @@ export default function UploadPage() {
     setIsSubmitting(true);
 
     try {
+      // Get the violation type label from the selected value
+      const violationTypeLabel = (() => {
+        switch (formData.violationType) {
+          case "speeding":
+            return "Speeding";
+          case "red-light":
+            return "Running Red Light";
+          case "wrong-lane":
+            return "Wrong Lane Usage";
+          case "no-helmet":
+            return "No Helmet";
+          case "phone-use":
+            return "Phone Usage While Driving";
+          case "drunk-driving":
+            return "Suspected Drunk Driving";
+          case "reckless":
+            return "Reckless Driving";
+          case "other":
+            return "Other Violation";
+          default:
+            return formData.violationType;
+        }
+      })();
+
+      // Combine violation type with description for the backend API
+      const combinedDescription = `${violationTypeLabel}: ${formData.description}`;
+
       const reportData = {
         type: formData.violationType,
         vehicleNumber: formData.vehicleNumber,
         location: formData.location,
-        description: formData.description,
+        description: combinedDescription, // Use the combined description
         reporter: formData.reporterContact || "Anonymous",
         mediaType: mediaType || "photo",
         timestamp: new Date().toISOString(),
         status: "pending" as const,
       };
 
+      // First submit to our internal API
       const result = await violationAPI.submitReport(reportData);
+
+      // If we have a video file, also submit to the external video analysis API
+      if (mediaFile && mediaType === "video") {
+        try {
+          // Create FormData for multipart/form-data request
+          const formData = new FormData();
+          formData.append("video_file", mediaFile);
+          formData.append("user_description", combinedDescription); // Use the combined description with violation type
+
+          // Make the request to the external API
+          const response = await fetch(
+            "https://bot.ovindu.com/analyze-video/",
+            {
+              method: "POST",
+              body: formData,
+              // No need to set Content-Type header as it's automatically set with boundary for FormData
+            }
+          );
+
+          if (!response.ok) {
+            console.error("Video analysis API error:", await response.text());
+          } else {
+            console.log("Video analysis submitted successfully");
+          }
+        } catch (apiError) {
+          console.error("Error submitting to video analysis API:", apiError);
+          // Continue with the flow even if the external API fails
+        }
+      }
 
       alert(
         `Report submitted successfully! You can track its status using the reference number: ${result.id}`
@@ -301,7 +358,6 @@ export default function UploadPage() {
                         }
                         placeholder="Enter location or address"
                         className="border-black focus:border-yellow-400 h-10 md:h-11 rounded-lg"
-                        required
                       />
                       <Button
                         type="button"
@@ -328,7 +384,6 @@ export default function UploadPage() {
                       }
                       placeholder="Describe what happened..."
                       className="border-black focus:border-yellow-400 min-h-[80px] md:min-h-[100px] rounded-lg text-sm md:text-base"
-                      required
                     />
                   </div>
 
