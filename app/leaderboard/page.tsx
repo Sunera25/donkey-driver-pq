@@ -5,13 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle, ExternalLink, Play } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle, ExternalLink, Play, MessageCircle, Send, Heart, Maximize2 } from "lucide-react"
 import { Navbar } from "@/components/navbar"
 import { leaderboardAPI, type WorstDriver } from "@/lib/api"
 import Link from "next/link"
 
 // Carousel Component for Top 3
-function CarouselSection({ drivers, getRankIcon }: { drivers: WorstDriver[], getRankIcon: (rank: number) => JSX.Element }) {
+function CarouselSection({ drivers, getRankIcon, onVideoSelect }: { drivers: WorstDriver[], getRankIcon: (rank: number) => JSX.Element, onVideoSelect: (driver: WorstDriver) => void }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -74,13 +75,21 @@ function CarouselSection({ drivers, getRankIcon }: { drivers: WorstDriver[], get
                       <div className="flex items-center">{getRankIcon(driver.rank)}</div>
                     </div>
                     
-                    {/* External Link in top-right */}
-                    <Link
-                      href={`/driver/${driver.id}`}
-                      className="absolute top-3 right-3 z-10 bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
-                    >
-                      <ExternalLink className="h-5 w-5 text-white" />
-                    </Link>
+                    {/* External Link and Maximize in top-right */}
+                    <div className="absolute top-3 right-3 z-10 flex space-x-2">
+                      <button
+                        onClick={() => onVideoSelect(driver)}
+                        className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
+                      >
+                        <Maximize2 className="h-5 w-5 text-white" />
+                      </button>
+                      <Link
+                        href={`/driver/${driver.id}`}
+                        className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
+                      >
+                        <ExternalLink className="h-5 w-5 text-white" />
+                      </Link>
+                    </div>
                     
                     {/* Number Plate in bottom-left */}
                     <div className="absolute bottom-3 left-3 z-10">
@@ -153,13 +162,21 @@ function CarouselSection({ drivers, getRankIcon }: { drivers: WorstDriver[], get
                 <div className="flex items-center">{getRankIcon(driver.rank)}</div>
               </div>
               
-              {/* External Link in top-right */}
-              <Link
-                href={`/driver/${driver.id}`}
-                className="absolute top-3 right-3 z-10 bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
-              >
-                <ExternalLink className="h-5 w-5 text-white" />
-              </Link>
+              {/* External Link and Maximize in top-right */}
+              <div className="absolute top-3 right-3 z-10 flex space-x-2">
+                <button
+                  onClick={() => onVideoSelect(driver)}
+                  className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
+                >
+                  <Maximize2 className="h-5 w-5 text-white" />
+                </button>
+                <Link
+                  href={`/driver/${driver.id}`}
+                  className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
+                >
+                  <ExternalLink className="h-5 w-5 text-white" />
+                </Link>
+              </div>
               
               {/* Number Plate in bottom-left */}
               <div className="absolute bottom-3 left-3 z-10">
@@ -199,10 +216,19 @@ export default function LeaderboardPage() {
   const [timeFilter, setTimeFilter] = useState("all")
   const [locationFilter, setLocationFilter] = useState("all")
   const [sortBy, setSortBy] = useState("violations")
+  const [selectedVideo, setSelectedVideo] = useState<WorstDriver | null>(null)
+  const [comments, setComments] = useState<{[key: string]: Array<{id: string; author: string; comment: string; timestamp: string; likes: number}>}>({})
+  const [newComment, setNewComment] = useState("")
 
   useEffect(() => {
     fetchWorstDrivers()
   }, [])
+
+  useEffect(() => {
+    if (worstDrivers.length > 0) {
+      generateDummyComments()
+    }
+  }, [worstDrivers])
 
   const fetchWorstDrivers = async () => {
     try {
@@ -215,6 +241,73 @@ export default function LeaderboardPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const generateDummyComments = () => {
+    const dummyComments: {[key: string]: Array<{id: string; author: string; comment: string; timestamp: string; likes: number}>} = {}
+    
+    const sampleComments = [
+      "This driver is absolutely reckless!",
+      "I see this car speeding every day on my commute.",
+      "Finally someone caught them on camera!",
+      "They almost hit me last week at this same spot.",
+      "This intersection needs better enforcement.",
+      "Unbelievable! No regard for safety.",
+      "I've reported this driver multiple times.",
+      "They park illegally too!",
+      "Worst driver in the city for sure.",
+      "Hope they get their license revoked."
+    ]
+    
+    const authors = ["RoadSafety101", "ConcernedCitizen", "DailyCommuter", "SafeDriver", "TrafficWatcher", "LocalResident", "CarefulDriver", "AnonymousReporter"]
+    
+    // Generate 2-4 comments per driver
+    worstDrivers.forEach((driver) => {
+      const numComments = Math.floor(Math.random() * 3) + 2
+      dummyComments[driver.id] = []
+      
+      for (let i = 0; i < numComments; i++) {
+        dummyComments[driver.id].push({
+          id: `comment-${driver.id}-${i}`,
+          author: authors[Math.floor(Math.random() * authors.length)],
+          comment: sampleComments[Math.floor(Math.random() * sampleComments.length)],
+          timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+          likes: Math.floor(Math.random() * 20)
+        })
+      }
+    })
+    
+    setComments(dummyComments)
+  }
+
+  const handleAddComment = () => {
+    if (newComment.trim() && selectedVideo) {
+      const newCommentObj = {
+        id: `comment-${Date.now()}`,
+        author: "You",
+        comment: newComment.trim(),
+        timestamp: new Date().toLocaleDateString(),
+        likes: 0
+      }
+      
+      setComments(prev => ({
+        ...prev,
+        [selectedVideo.id]: [...(prev[selectedVideo.id] || []), newCommentObj]
+      }))
+      
+      setNewComment("")
+    }
+  }
+
+  const handleLikeComment = (driverId: string, commentId: string) => {
+    setComments(prev => ({
+      ...prev,
+      [driverId]: prev[driverId]?.map(comment => 
+        comment.id === commentId 
+          ? { ...comment, likes: comment.likes + 1 }
+          : comment
+      ) || []
+    }))
   }
 
   const getRankIcon = (rank: number) => {
@@ -303,7 +396,7 @@ export default function LeaderboardPage() {
 
 
         {/* Top 3 Carousel */}
-        <CarouselSection drivers={worstDrivers.slice(0, 3)} getRankIcon={getRankIcon} />
+        <CarouselSection drivers={worstDrivers.slice(0, 3)} getRankIcon={getRankIcon} onVideoSelect={setSelectedVideo} />
 
         {/* Full Leaderboard - Card Grid */}
         <div className="mb-8">
@@ -417,13 +510,21 @@ export default function LeaderboardPage() {
                     <Badge className={getRankBadge(driver.rank)} >#{driver.rank}</Badge>
                   </div>
                   
-                  {/* External Link in top-right */}
-                  <Link
-                    href={`/driver/${driver.id}`}
-                    className="absolute top-3 right-3 z-10 bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
-                  >
-                    <ExternalLink className="h-4 w-4 text-white" />
-                  </Link>
+                  {/* External Link and Maximize in top-right */}
+                  <div className="absolute top-3 right-3 z-10 flex space-x-2">
+                    <button
+                      onClick={() => setSelectedVideo(driver)}
+                      className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
+                    >
+                      <Maximize2 className="h-4 w-4 text-white" />
+                    </button>
+                    <Link
+                      href={`/driver/${driver.id}`}
+                      className="bg-white/20 rounded-full p-2 hover:bg-white/30 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4 text-white" />
+                    </Link>
+                  </div>
                   
                   {/* Number Plate in bottom-left */}
                   <div className="absolute bottom-3 left-3 z-10">
@@ -455,6 +556,107 @@ export default function LeaderboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Video Dialog */}
+      <Dialog open={!!selectedVideo} onOpenChange={(open) => !open && setSelectedVideo(null)}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+          {selectedVideo && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-mono font-bold">{selectedVideo.id}</span>
+                    <Badge className="bg-yellow-500 text-black">#{selectedVideo.rank}</Badge>
+                    <Badge className="bg-black text-yellow-400">{selectedVideo.points} pts</Badge>
+                  </div>
+                  <div className="flex items-center space-x-1 text-sm text-gray-600">
+                    <MapPin className="h-4 w-4" />
+                    <span>{selectedVideo.location}</span>
+                  </div>
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+                {/* Video Section */}
+                <div className="lg:col-span-2">
+                  <div className="bg-black rounded-lg h-64 md:h-96 flex items-center justify-center">
+                    <button className="bg-yellow-400 hover:bg-yellow-500 rounded-full p-6 transition-colors">
+                      <Play className="h-12 w-12 text-black fill-black" />
+                    </button>
+                  </div>
+                  
+                  {/* Video Info */}
+                  <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold text-lg">Violation Details</h3>
+                      <Badge className="bg-red-500 text-white">{selectedVideo.violations} Violations</Badge>
+                    </div>
+                    <p className="text-gray-600">
+                      This driver has been reported multiple times for traffic violations including speeding, 
+                      red light violations, and reckless driving. Latest incident captured on {new Date().toLocaleDateString()}.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Comments Section */}
+                <div className="lg:col-span-1 flex flex-col">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <MessageCircle className="h-5 w-5" />
+                    <h3 className="font-semibold">Comments ({comments[selectedVideo.id]?.length || 0})</h3>
+                  </div>
+                  
+                  {/* Comments List */}
+                  <div className="flex-1 overflow-y-auto max-h-80 space-y-3 mb-4 pr-2">
+                    {comments[selectedVideo.id]?.map((comment) => (
+                      <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium text-sm text-gray-800">{comment.author}</span>
+                          <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                        </div>
+                        <p className="text-sm text-gray-700 mb-2">{comment.comment}</p>
+                        <button 
+                          onClick={() => handleLikeComment(selectedVideo.id, comment.id)}
+                          className="flex items-center space-x-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
+                        >
+                          <Heart className="h-3 w-3" />
+                          <span>{comment.likes}</span>
+                        </button>
+                      </div>
+                    )) || (
+                      <div className="text-center text-gray-500 py-8">
+                        <MessageCircle className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                        <p>No comments yet. Be the first!</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Add Comment */}
+                  <div className="border-t pt-4">
+                    <div className="flex space-x-2">
+                      <input
+                        type="text"
+                        placeholder="Add a comment..."
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                      />
+                      <Button 
+                        onClick={handleAddComment}
+                        size="sm"
+                        className="bg-yellow-400 hover:bg-yellow-500 text-black px-3"
+                        disabled={!newComment.trim()}
+                      >
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
