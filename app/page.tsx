@@ -19,11 +19,11 @@ import { Navbar } from "@/components/navbar";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white pb-16 md:pb-0">
+    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white pb-16 md:pb-0 overflow-x-hidden">
       <Navbar />
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-12 text-center">
+      <section className="container mx-auto px-4 py-12 text-center max-w-full">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-6xl font-bold text-black mb-6">
             Report Reckless Drivers
@@ -58,8 +58,8 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="bg-black text-yellow-400 py-20 -mx-4">
-        <div className="container mx-auto px-8">
+      <section className="bg-black text-yellow-400 py-20 mx-0">
+        <div className="container mx-auto px-4 md:px-8 max-w-full">
           <h3 className="text-3xl font-bold text-center mb-16">How It Works</h3>
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="bg-yellow-400 text-black border-0 rounded-2xl transform hover:scale-105 transition-transform">
@@ -105,8 +105,8 @@ export default function HomePage() {
       </section>
 
       {/* Stats */}
-      <section className="py-20 bg-gradient-to-r from-yellow-50 via-yellow-100 to-yellow-50 -mx-4">
-        <div className="container mx-auto px-8">
+      <section className="py-20 bg-gradient-to-r from-yellow-50 via-yellow-100 to-yellow-50 mx-0">
+        <div className="container mx-auto px-4 md:px-8 max-w-full">
           <h3 className="text-3xl font-bold text-center text-black mb-12">
             Our Impact
           </h3>
@@ -137,7 +137,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="bg-black text-yellow-400 py-8">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-4 text-center max-w-full">
           <div className="flex items-center justify-center space-x-4 mb-4">
             <AlertTriangle className="h-6 w-6" />
             <span className="text-xl font-bold">Donkey Driver</span>

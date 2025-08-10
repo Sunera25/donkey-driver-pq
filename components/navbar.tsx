@@ -120,7 +120,7 @@ export function Navbar() {
         </div>
       </nav>
       {/* Mobile Header - Fixed at Top */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-b border-yellow-400">
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-b border-yellow-400 w-full">
         <div className="flex items-center justify-center p-4 gap-x-4">
           <div className="w-8 h-8 rounded-full overflow-hidden bg-yellow-400 p-0.5 mr-2">
             <Image
@@ -135,7 +135,7 @@ export function Navbar() {
         </div>
       </div>
       {/* Mobile Navbar - Fixed at Bottom */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-t border-yellow-400">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-t border-yellow-400 w-full">
         <div className="p-3">
           <div className="flex items-center justify-between w-full">
             {/* Home */}
@@ -158,7 +158,7 @@ export function Navbar() {
               <Button
                 onClick={handleCameraClick}
                 disabled={isCapturing}
-                className="bg-yellow-400 hover:bg-yellow-500 active:scale-95 transition-transform duration-200 text-black font-semibold px-6 py-3 rounded-full shadow-md hover:shadow-lg"
+                className="bg-yellow-400 hover:bg-yellow-500 active:scale-95 transition-transform duration-200 text-black font-semibold px-8 py-6 rounded-full shadow-md hover:shadow-lg"
               >
                 <Camera className="h-12 w-12" />
               </Button>
