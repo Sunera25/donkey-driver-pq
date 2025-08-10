@@ -1,57 +1,100 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AlertTriangle, Shield, CheckCircle, XCircle, Clock, Eye, User, MapPin, Calendar, LogOut } from "lucide-react"
+import {
+  AlertTriangle,
+  Shield,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Eye,
+  User,
+  MapPin,
+  Calendar,
+  LogOut,
+  Loader2,
+} from "lucide-react"
 import Link from "next/link"
-
-// Mock data for reports
-const pendingReports = [
-  {
-    id: "VR-ABC123",
-    type: "Speeding",
-    location: "Galle Road, Colombo",
-    timestamp: "2024-01-08 14:30",
-    reporter: "Anonymous",
-    vehicleNumber: "CAB-1234",
-    status: "pending",
-    mediaType: "video",
-    description: "Vehicle exceeding speed limit in school zone",
-  },
-  {
-    id: "VR-DEF456",
-    type: "Red Light Violation",
-    location: "Kandy Road Junction",
-    timestamp: "2024-01-08 13:15",
-    reporter: "077-1234567",
-    vehicleNumber: "KY-5678",
-    status: "pending",
-    mediaType: "photo",
-    description: "Motorcycle ran red light at busy intersection",
-  },
-  {
-    id: "VR-GHI789",
-    type: "Wrong Lane",
-    location: "Negombo Main Street",
-    timestamp: "2024-01-08 12:00",
-    reporter: "Anonymous",
-    vehicleNumber: "WP-9012",
-    status: "pending",
-    mediaType: "video",
-    description: "Car driving in opposite lane",
-  },
-]
+import { violationAPI, type ViolationReport } from "@/lib/api"
 
 export default function PoliceDashboard() {
-  const [selectedReport, setSelectedReport] = useState<string | null>(null)
+  const [reports, setReports] = useState<ViolationReport[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState("all")
+  const [validatingReports, setValidatingReports] = useState<Set<string>>(new Set())
 
-  const handleValidateReport = (reportId: string, isValid: boolean) => {
-    alert(`Report ${reportId} marked as ${isValid ? "valid" : "invalid"}`)
+  useEffect(() => {
+    fetchReports()
+  }, [])
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true)
+      const data = await violationAPI.getReports()
+      setReports(data.filter((report) => report.status === "pending"))
+    } catch (err) {
+      setError("Failed to fetch reports")
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleValidateReport = async (reportId: string, isValid: boolean) => {
+    try {
+      setValidatingReports((prev) => new Set(prev).add(reportId))
+      await violationAPI.validateReport(reportId, isValid)
+
+      // Remove the report from the list
+      setReports((prev) => prev.filter((report) => report.id !== reportId))
+
+      alert(`Report ${reportId} marked as ${isValid ? "valid" : "invalid"}`)
+    } catch (err) {
+      alert("Failed to validate report")
+      console.error(err)
+    } finally {
+      setValidatingReports((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(reportId)
+        return newSet
+      })
+    }
+  }
+
+  const pendingReports = reports.filter(
+    (report) => filter === "all" || report.type.toLowerCase().includes(filter.toLowerCase()),
+  )
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-8 w-8 animate-spin text-yellow-400" />
+          <span className="text-xl">Loading dashboard...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-black mb-2">Error Loading Dashboard</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button onClick={fetchReports} className="bg-yellow-400 hover:bg-yellow-500 text-black">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -78,7 +121,7 @@ export default function PoliceDashboard() {
           <Card className="border-yellow-400">
             <CardContent className="p-4 text-center">
               <Clock className="h-8 w-8 mx-auto mb-2 text-orange-500" />
-              <div className="text-2xl font-bold text-black">23</div>
+              <div className="text-2xl font-bold text-black">{pendingReports.length}</div>
               <div className="text-gray-600">Pending Reports</div>
             </CardContent>
           </Card>
@@ -121,7 +164,7 @@ export default function PoliceDashboard() {
           <TabsContent value="pending" className="space-y-6">
             {/* Filters */}
             <Card className="border-yellow-400">
-              <CardHeader className="bg-yellow-400 text-black">
+              <CardHeader className="bg-yellow-400 text-black p-4">
                 <CardTitle>Filter Reports</CardTitle>
               </CardHeader>
               <CardContent className="p-4">
@@ -167,7 +210,7 @@ export default function PoliceDashboard() {
             <div className="space-y-4">
               {pendingReports.map((report) => (
                 <Card key={report.id} className="border-2 border-yellow-400 hover:shadow-lg transition-shadow">
-                  <CardHeader className="bg-black text-yellow-400">
+                  <CardHeader className="bg-black text-yellow-400 p-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <CardTitle className="flex items-center space-x-2">
@@ -219,17 +262,27 @@ export default function PoliceDashboard() {
                         <div className="flex space-x-2">
                           <Button
                             onClick={() => handleValidateReport(report.id, true)}
+                            disabled={validatingReports.has(report.id)}
                             className="flex-1 bg-green-500 hover:bg-green-600 text-white"
                           >
-                            <CheckCircle className="h-4 w-4 mr-2" />
+                            {validatingReports.has(report.id) ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                            )}
                             Validate
                           </Button>
                           <Button
                             onClick={() => handleValidateReport(report.id, false)}
+                            disabled={validatingReports.has(report.id)}
                             variant="destructive"
                             className="flex-1"
                           >
-                            <XCircle className="h-4 w-4 mr-2" />
+                            {validatingReports.has(report.id) ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <XCircle className="h-4 w-4 mr-2" />
+                            )}
                             Reject
                           </Button>
                         </div>
@@ -243,7 +296,7 @@ export default function PoliceDashboard() {
 
           <TabsContent value="validated">
             <Card className="border-yellow-400">
-              <CardHeader className="bg-green-500 text-white">
+              <CardHeader className="bg-green-500 text-white p-4">
                 <CardTitle>Validated Reports</CardTitle>
                 <CardDescription className="text-green-100">
                   Reports that have been processed and forwarded
@@ -257,7 +310,7 @@ export default function PoliceDashboard() {
 
           <TabsContent value="history">
             <Card className="border-yellow-400">
-              <CardHeader className="bg-gray-500 text-white">
+              <CardHeader className="bg-gray-500 text-white p-4">
                 <CardTitle>Report History</CardTitle>
                 <CardDescription className="text-gray-100">Complete history of all processed reports</CardDescription>
               </CardHeader>

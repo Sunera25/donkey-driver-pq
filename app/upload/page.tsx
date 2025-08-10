@@ -9,14 +9,22 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Camera, Upload, MapPin, Video, ImageIcon } from "lucide-react"
+import { Camera, Upload, MapPin, Video, ImageIcon, Loader2 } from "lucide-react"
 import { Navbar } from "@/components/navbar"
+import { violationAPI } from "@/lib/api"
 
 export default function UploadPage() {
   const [mediaFile, setMediaFile] = useState<File | null>(null)
   const [mediaPreview, setMediaPreview] = useState<string | null>(null)
   const [mediaType, setMediaType] = useState<"photo" | "video" | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState({
+    violationType: "",
+    vehicleNumber: "",
+    location: "",
+    description: "",
+    reporterContact: "",
+  })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
 
@@ -59,23 +67,47 @@ export default function UploadPage() {
     cameraInputRef.current?.click()
   }
 
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate submission
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    try {
+      const reportData = {
+        type: formData.violationType,
+        vehicleNumber: formData.vehicleNumber,
+        location: formData.location,
+        description: formData.description,
+        reporter: formData.reporterContact || "Anonymous",
+        mediaType: mediaType || "photo",
+        timestamp: new Date().toISOString(),
+        status: "pending" as const,
+      }
 
-    alert(
-      "Report submitted successfully! You can track its status using the reference number: VR-" +
-        Math.random().toString(36).substr(2, 9).toUpperCase(),
-    )
-    setIsSubmitting(false)
+      const result = await violationAPI.submitReport(reportData)
 
-    // Reset form
-    setMediaFile(null)
-    setMediaPreview(null)
-    setMediaType(null)
+      alert(`Report submitted successfully! You can track its status using the reference number: ${result.id}`)
+
+      // Reset form
+      setMediaFile(null)
+      setMediaPreview(null)
+      setMediaType(null)
+      setFormData({
+        violationType: "",
+        vehicleNumber: "",
+        location: "",
+        description: "",
+        reporterContact: "",
+      })
+    } catch (error) {
+      alert("Failed to submit report. Please try again.")
+      console.error("Submission error:", error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -85,7 +117,7 @@ export default function UploadPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <Card className="border-2 border-yellow-400">
-            <CardHeader className="bg-black text-yellow-400">
+            <CardHeader className="bg-black text-yellow-400 p-4">
               <CardTitle className="flex items-center space-x-2">
                 <Camera className="h-6 w-6" />
                 <span>Upload Traffic Violation</span>
@@ -169,7 +201,11 @@ export default function UploadPage() {
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="violation-type">Violation Type</Label>
-                    <Select required>
+                    <Select
+                      value={formData.violationType}
+                      onValueChange={(value) => handleInputChange("violationType", value)}
+                      required
+                    >
                       <SelectTrigger className="border-black focus:border-yellow-400">
                         <SelectValue placeholder="Select violation type" />
                       </SelectTrigger>
@@ -190,6 +226,8 @@ export default function UploadPage() {
                     <Label htmlFor="vehicle-number">Vehicle Number (if visible)</Label>
                     <Input
                       id="vehicle-number"
+                      value={formData.vehicleNumber}
+                      onChange={(e) => handleInputChange("vehicleNumber", e.target.value)}
                       placeholder="e.g., ABC-1234"
                       className="border-black focus:border-yellow-400"
                     />
@@ -200,6 +238,8 @@ export default function UploadPage() {
                     <div className="flex space-x-2">
                       <Input
                         id="location"
+                        value={formData.location}
+                        onChange={(e) => handleInputChange("location", e.target.value)}
                         placeholder="Enter location or address"
                         className="border-black focus:border-yellow-400"
                         required
@@ -218,6 +258,8 @@ export default function UploadPage() {
                     <Label htmlFor="description">Description</Label>
                     <Textarea
                       id="description"
+                      value={formData.description}
+                      onChange={(e) => handleInputChange("description", e.target.value)}
                       placeholder="Describe what happened..."
                       className="border-black focus:border-yellow-400 min-h-[100px]"
                       required
@@ -229,6 +271,8 @@ export default function UploadPage() {
                     <Input
                       id="reporter-contact"
                       type="tel"
+                      value={formData.reporterContact}
+                      onChange={(e) => handleInputChange("reporterContact", e.target.value)}
                       placeholder="Phone number for follow-up"
                       className="border-black focus:border-yellow-400"
                     />
@@ -237,10 +281,19 @@ export default function UploadPage() {
 
                 <Button
                   type="submit"
-                  disabled={isSubmitting || !mediaFile}
+                  disabled={
+                    isSubmitting || !mediaFile || !formData.violationType || !formData.location || !formData.description
+                  }
                   className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 text-lg"
                 >
-                  {isSubmitting ? "Submitting Report..." : "Submit Report"}
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Submitting Report...
+                    </>
+                  ) : (
+                    "Submit Report"
+                  )}
                 </Button>
               </form>
             </CardContent>

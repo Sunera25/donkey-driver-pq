@@ -1,28 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, TrendingDown, Calendar, MapPin, Filter } from "lucide-react"
+import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle } from "lucide-react"
 import { Navbar } from "@/components/navbar"
-
-// Mock data for worst drivers
-const worstDrivers = [
-  { id: "DD001", violations: 15, points: -45, location: "Colombo", lastViolation: "2024-01-08", rank: 1 },
-  { id: "DD002", violations: 12, points: -36, location: "Kandy", lastViolation: "2024-01-07", rank: 2 },
-  { id: "DD003", violations: 11, points: -33, location: "Galle", lastViolation: "2024-01-06", rank: 3 },
-  { id: "DD004", violations: 9, points: -27, location: "Colombo", lastViolation: "2024-01-05", rank: 4 },
-  { id: "DD005", violations: 8, points: -24, location: "Negombo", lastViolation: "2024-01-04", rank: 5 },
-  { id: "DD006", violations: 7, points: -21, location: "Matara", lastViolation: "2024-01-03", rank: 6 },
-  { id: "DD007", violations: 6, points: -18, location: "Kandy", lastViolation: "2024-01-02", rank: 7 },
-  { id: "DD008", violations: 5, points: -15, location: "Colombo", lastViolation: "2024-01-01", rank: 8 },
-]
+import { leaderboardAPI, type WorstDriver } from "@/lib/api"
+import { Button } from "@/components/ui/button"
 
 export default function LeaderboardPage() {
+  const [worstDrivers, setWorstDrivers] = useState<WorstDriver[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [timeFilter, setTimeFilter] = useState("all")
   const [locationFilter, setLocationFilter] = useState("all")
   const [sortBy, setSortBy] = useState("violations")
+
+  useEffect(() => {
+    fetchWorstDrivers()
+  }, [])
+
+  const fetchWorstDrivers = async () => {
+    try {
+      setLoading(true)
+      const data = await leaderboardAPI.getWorstDrivers()
+      setWorstDrivers(data)
+    } catch (err) {
+      setError("Failed to fetch leaderboard data")
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-500" />
@@ -36,6 +46,38 @@ export default function LeaderboardPage() {
     if (rank === 2) return "bg-orange-500 text-white"
     if (rank === 3) return "bg-yellow-500 text-black"
     return "bg-gray-500 text-white"
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white pb-20 md:pb-0">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="flex items-center space-x-2">
+            <Loader2 className="h-8 w-8 animate-spin text-yellow-400" />
+            <span className="text-xl">Loading leaderboard...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white pb-20 md:pb-0">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-center">
+            <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-black mb-2">Error Loading Leaderboard</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button onClick={fetchWorstDrivers} className="bg-yellow-400 hover:bg-yellow-500 text-black">
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -54,7 +96,7 @@ export default function LeaderboardPage() {
 
         {/* Filters */}
         <Card className="mb-8 border-2 border-yellow-400">
-          <CardHeader className="bg-yellow-400 text-black py-3">
+          <CardHeader className="bg-yellow-400 text-black p-4">
             <CardTitle className="flex items-center space-x-2">
               <Filter className="h-5 w-5" />
               <span>Filter & Sort</span>
@@ -120,7 +162,7 @@ export default function LeaderboardPage() {
                 className={`border-4 ${index === 0 ? "border-red-500 transform scale-105" : index === 1 ? "border-orange-500" : "border-yellow-500"} shadow-xl`}
               >
                 <CardHeader
-                  className={`${index === 0 ? "bg-red-500" : index === 1 ? "bg-orange-500" : "bg-yellow-500"} text-white text-center`}
+                  className={`${index === 0 ? "bg-red-500" : index === 1 ? "bg-orange-500" : "bg-yellow-500"} text-white text-center p-4`}
                 >
                   <div className="flex justify-center mb-2">{getRankIcon(driver.rank)}</div>
                   <CardTitle className="text-2xl">{driver.id}</CardTitle>
@@ -145,7 +187,7 @@ export default function LeaderboardPage() {
 
         {/* Full Leaderboard */}
         <Card className="border-2 border-yellow-400">
-          <CardHeader className="bg-black text-yellow-400 py-3">
+          <CardHeader className="bg-black text-yellow-400 p-4">
             <CardTitle className="text-xl">Complete Rankings</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -203,19 +245,23 @@ export default function LeaderboardPage() {
         <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="text-center border-yellow-400">
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-black">156</div>
+              <div className="text-2xl font-bold text-black">{worstDrivers.length}</div>
               <div className="text-gray-600">Total Offenders</div>
             </CardContent>
           </Card>
           <Card className="text-center border-yellow-400">
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-black">892</div>
+              <div className="text-2xl font-bold text-black">
+                {worstDrivers.reduce((sum, driver) => sum + driver.violations, 0)}
+              </div>
               <div className="text-gray-600">Total Violations</div>
             </CardContent>
           </Card>
           <Card className="text-center border-yellow-400">
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-black">-2,847</div>
+              <div className="text-2xl font-bold text-black">
+                {worstDrivers.reduce((sum, driver) => sum + driver.points, 0)}
+              </div>
               <div className="text-gray-600">Total Points Lost</div>
             </CardContent>
           </Card>

@@ -1,53 +1,50 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Building2, AlertTriangle, Flag, TrendingUp, Eye, Calendar, User, Car, LogOut, FileText } from "lucide-react"
+import {
+  Building2,
+  AlertTriangle,
+  Flag,
+  TrendingUp,
+  Eye,
+  Calendar,
+  User,
+  Car,
+  LogOut,
+  FileText,
+  Loader2,
+} from "lucide-react"
 import Link from "next/link"
-
-// Mock data for insurance claims
-const dashcamUploads = [
-  {
-    id: "CLM-2024-001",
-    policyHolder: "John Doe",
-    policyNumber: "POL-123456",
-    vehicleNumber: "CAB-1234",
-    uploadDate: "2024-01-08",
-    claimAmount: "Rs. 150,000",
-    status: "under-review",
-    suspiciousScore: 85,
-    description: "Rear-end collision at traffic light",
-  },
-  {
-    id: "CLM-2024-002",
-    policyHolder: "Jane Smith",
-    policyNumber: "POL-789012",
-    vehicleNumber: "WP-5678",
-    uploadDate: "2024-01-07",
-    claimAmount: "Rs. 75,000",
-    status: "flagged",
-    suspiciousScore: 92,
-    description: "Side collision at intersection",
-  },
-  {
-    id: "CLM-2024-003",
-    policyHolder: "Mike Johnson",
-    policyNumber: "POL-345678",
-    vehicleNumber: "KY-9012",
-    uploadDate: "2024-01-06",
-    claimAmount: "Rs. 200,000",
-    status: "approved",
-    suspiciousScore: 15,
-    description: "Vehicle damage from fallen tree",
-  },
-]
+import { insuranceAPI, type InsuranceClaim } from "@/lib/api"
 
 export default function InsuranceDashboard() {
+  const [claims, setClaims] = useState<InsuranceClaim[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState("all")
+  const [flaggingClaims, setFlaggingClaims] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    fetchClaims()
+  }, [])
+
+  const fetchClaims = async () => {
+    try {
+      setLoading(true)
+      const data = await insuranceAPI.getClaims()
+      setClaims(data)
+    } catch (err) {
+      setError("Failed to fetch claims")
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const getSuspiciousLevel = (score: number) => {
     if (score >= 80) return { level: "High", color: "bg-red-500", textColor: "text-red-600" }
@@ -55,8 +52,53 @@ export default function InsuranceDashboard() {
     return { level: "Low", color: "bg-green-500", textColor: "text-green-600" }
   }
 
-  const handleFlagClaim = (claimId: string) => {
-    alert(`Claim ${claimId} has been flagged for further investigation`)
+  const handleFlagClaim = async (claimId: string) => {
+    try {
+      setFlaggingClaims((prev) => new Set(prev).add(claimId))
+      await insuranceAPI.flagClaim(claimId)
+
+      // Update the claim status locally
+      setClaims((prev) => prev.map((claim) => (claim.id === claimId ? { ...claim, status: "flagged" } : claim)))
+
+      alert(`Claim ${claimId} has been flagged for further investigation`)
+    } catch (err) {
+      alert("Failed to flag claim")
+      console.error(err)
+    } finally {
+      setFlaggingClaims((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(claimId)
+        return newSet
+      })
+    }
+  }
+
+  const filteredClaims = claims.filter((claim) => filter === "all" || claim.status === filter)
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-8 w-8 animate-spin text-yellow-400" />
+          <span className="text-xl">Loading dashboard...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-black mb-2">Error Loading Dashboard</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Button onClick={fetchClaims} className="bg-yellow-400 hover:bg-yellow-500 text-black">
+            Try Again
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -83,21 +125,23 @@ export default function InsuranceDashboard() {
           <Card className="border-yellow-400">
             <CardContent className="p-4 text-center">
               <FileText className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-              <div className="text-2xl font-bold text-black">47</div>
+              <div className="text-2xl font-bold text-black">{claims.length}</div>
               <div className="text-gray-600">Total Claims</div>
             </CardContent>
           </Card>
           <Card className="border-yellow-400">
             <CardContent className="p-4 text-center">
               <Flag className="h-8 w-8 mx-auto mb-2 text-red-500" />
-              <div className="text-2xl font-bold text-black">12</div>
+              <div className="text-2xl font-bold text-black">{claims.filter((c) => c.status === "flagged").length}</div>
               <div className="text-gray-600">Flagged Claims</div>
             </CardContent>
           </Card>
           <Card className="border-yellow-400">
             <CardContent className="p-4 text-center">
               <TrendingUp className="h-8 w-8 mx-auto mb-2 text-orange-500" />
-              <div className="text-2xl font-bold text-black">25%</div>
+              <div className="text-2xl font-bold text-black">
+                {Math.round((claims.filter((c) => c.suspiciousScore > 70).length / claims.length) * 100)}%
+              </div>
               <div className="text-gray-600">Suspicious Rate</div>
             </CardContent>
           </Card>
@@ -126,7 +170,7 @@ export default function InsuranceDashboard() {
           <TabsContent value="claims" className="space-y-6">
             {/* Filters */}
             <Card className="border-yellow-400">
-              <CardHeader className="bg-yellow-400 text-black">
+              <CardHeader className="bg-yellow-400 text-black p-4">
                 <CardTitle>Filter Claims</CardTitle>
               </CardHeader>
               <CardContent className="p-4">
@@ -170,11 +214,11 @@ export default function InsuranceDashboard() {
 
             {/* Claims List */}
             <div className="space-y-4">
-              {dashcamUploads.map((claim) => {
+              {filteredClaims.map((claim) => {
                 const suspicious = getSuspiciousLevel(claim.suspiciousScore)
                 return (
                   <Card key={claim.id} className="border-2 border-yellow-400 hover:shadow-lg transition-shadow">
-                    <CardHeader className="bg-black text-yellow-400">
+                    <CardHeader className="bg-black text-yellow-400 p-4">
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="flex items-center space-x-2">
@@ -240,9 +284,18 @@ export default function InsuranceDashboard() {
                           </div>
 
                           <div className="flex space-x-2">
-                            <Button onClick={() => handleFlagClaim(claim.id)} variant="destructive" className="flex-1">
-                              <Flag className="h-4 w-4 mr-2" />
-                              Flag as Suspicious
+                            <Button
+                              onClick={() => handleFlagClaim(claim.id)}
+                              disabled={flaggingClaims.has(claim.id) || claim.status === "flagged"}
+                              variant="destructive"
+                              className="flex-1"
+                            >
+                              {flaggingClaims.has(claim.id) ? (
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              ) : (
+                                <Flag className="h-4 w-4 mr-2" />
+                              )}
+                              {claim.status === "flagged" ? "Flagged" : "Flag as Suspicious"}
                             </Button>
                             <Button
                               variant="outline"
@@ -263,12 +316,29 @@ export default function InsuranceDashboard() {
 
           <TabsContent value="flagged">
             <Card className="border-yellow-400">
-              <CardHeader className="bg-red-500 text-white">
+              <CardHeader className="bg-red-500 text-white p-4">
                 <CardTitle>Flagged Claims</CardTitle>
                 <CardDescription className="text-red-100">Claims marked as potentially fraudulent</CardDescription>
               </CardHeader>
               <CardContent className="p-6">
-                <p className="text-gray-600">Flagged claims requiring investigation will appear here...</p>
+                <div className="space-y-4">
+                  {claims
+                    .filter((claim) => claim.status === "flagged")
+                    .map((claim) => (
+                      <div key={claim.id} className="border border-red-200 rounded-lg p-4">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h4 className="font-semibold">{claim.id}</h4>
+                            <p className="text-sm text-gray-600">{claim.description}</p>
+                          </div>
+                          <Badge variant="destructive">Flagged</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  {claims.filter((claim) => claim.status === "flagged").length === 0 && (
+                    <p className="text-gray-600">No flagged claims at the moment.</p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -276,25 +346,29 @@ export default function InsuranceDashboard() {
           <TabsContent value="analytics">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="border-yellow-400">
-                <CardHeader className="bg-yellow-400 text-black">
+                <CardHeader className="bg-yellow-400 text-black p-4">
                   <CardTitle>Fraud Detection Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     <div className="flex justify-between">
                       <span>Total Claims Analyzed:</span>
-                      <span className="font-bold">247</span>
+                      <span className="font-bold">{claims.length}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Flagged as Suspicious:</span>
-                      <span className="font-bold text-red-600">62</span>
+                      <span className="font-bold text-red-600">
+                        {claims.filter((c) => c.status === "flagged").length}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Confirmed Fraud:</span>
-                      <span className="font-bold text-red-600">18</span>
+                      <span>High Risk Claims:</span>
+                      <span className="font-bold text-red-600">
+                        {claims.filter((c) => c.suspiciousScore >= 80).length}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Money Saved:</span>
+                      <span>Money at Risk:</span>
                       <span className="font-bold text-green-600">Rs. 4.2M</span>
                     </div>
                   </div>
@@ -302,26 +376,26 @@ export default function InsuranceDashboard() {
               </Card>
 
               <Card className="border-yellow-400">
-                <CardHeader className="bg-yellow-400 text-black">
-                  <CardTitle>Suspicious Patterns</CardTitle>
+                <CardHeader className="bg-yellow-400 text-black p-4">
+                  <CardTitle>Risk Distribution</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm">Staged Accidents</span>
-                      <Badge variant="destructive">23 cases</Badge>
+                      <span className="text-sm">High Risk (80%+)</span>
+                      <Badge variant="destructive">{claims.filter((c) => c.suspiciousScore >= 80).length} cases</Badge>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm">Exaggerated Damage</span>
-                      <Badge variant="destructive">15 cases</Badge>
+                      <span className="text-sm">Medium Risk (50-79%)</span>
+                      <Badge className="bg-orange-500">
+                        {claims.filter((c) => c.suspiciousScore >= 50 && c.suspiciousScore < 80).length} cases
+                      </Badge>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm">False Witness Claims</span>
-                      <Badge variant="destructive">8 cases</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">Repeat Offenders</span>
-                      <Badge variant="destructive">12 cases</Badge>
+                      <span className="text-sm">Low Risk (0-49%)</span>
+                      <Badge className="bg-green-500">
+                        {claims.filter((c) => c.suspiciousScore < 50).length} cases
+                      </Badge>
                     </div>
                   </div>
                 </CardContent>
