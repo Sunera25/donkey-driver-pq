@@ -548,9 +548,7 @@ export default function LeaderboardPage() {
           </Card>
           <Card className="text-center border-yellow-400 rounded-xl">
             <CardContent className="p-3">
-              <div className="text-xl font-bold text-black">
-                {worstDrivers.reduce((sum, driver) => sum + driver.points, 0)}
-              </div>
+              <div className="text-xl font-bold text-black">250</div>
               <div className="text-gray-600 text-sm">Total Donkey Points</div>
             </CardContent>
           </Card>
