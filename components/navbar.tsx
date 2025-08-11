@@ -56,7 +56,7 @@ export function Navbar() {
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
-              <h1 className="text-2xl font-bold">Donkey Driver</h1>
+              <h1 className="text-2xl font-bold">Donkey Watch</h1>
             </Link>
 
             {/* Center - Navigation Links */}
@@ -129,7 +129,7 @@ export function Navbar() {
                 className="w-full h-full object-cover rounded-full"
               />
             </div>
-            <h1 className="text-xl font-bold">Donkey Driver</h1>
+            <h1 className="text-xl font-bold">Donkey Watch</h1>
           </div>
         </div>
       </div>

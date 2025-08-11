@@ -12,7 +12,13 @@ import { leaderboardAPI, type WorstDriver } from "@/lib/api"
 import Link from "next/link"
 
 // Carousel Component for Top 3
-function CarouselSection({ drivers, getRankIcon, onVideoSelect }: { drivers: WorstDriver[], getRankIcon: (rank: number) => JSX.Element, onVideoSelect: (driver: WorstDriver) => void }) {
+function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, playingVideos }: { 
+  drivers: WorstDriver[], 
+  getRankIcon: (rank: number) => JSX.Element, 
+  onVideoSelect: (driver: WorstDriver) => void,
+  onVideoPlay: (driverId: string) => void,
+  playingVideos: {[key: string]: boolean}
+}) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -65,10 +71,30 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect }: { drivers: Wor
                 } shadow-lg rounded-2xl overflow-hidden`}>
                   {/* Video Section */}
                   <div className="relative bg-black h-48 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
-                    <button className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-4 transition-colors">
-                      <Play className="h-8 w-8 text-black fill-black" />
-                    </button>
+                    {playingVideos[driver.id] ? (
+                      <video
+                        src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
+                        poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
+                        className="absolute inset-0 w-full h-full object-cover"
+                        controls
+                        autoPlay
+                      />
+                    ) : (
+                      <>
+                        <img 
+                          src="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg" 
+                          alt="Video thumbnail"
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
+                        <button 
+                          onClick={() => onVideoPlay(driver.id)}
+                          className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-4 transition-colors"
+                        >
+                          <Play className="h-8 w-8 text-black fill-black" />
+                        </button>
+                      </>
+                    )}
                     
                     {/* Rank Badge in top-left */}
                     <div className="absolute top-3 left-3 z-10">
@@ -147,10 +173,30 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect }: { drivers: Wor
           >
             {/* Video Section */}
             <div className="relative bg-black h-48 flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
-              <button className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-4 transition-colors">
-                <Play className="h-8 w-8 text-black fill-black" />
-              </button>
+              {playingVideos[driver.id] ? (
+                <video
+                  src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
+                  poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  controls
+                  autoPlay
+                />
+              ) : (
+                <>
+                  <img 
+                    src="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg" 
+                    alt="Video thumbnail"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
+                  <button 
+                    onClick={() => onVideoPlay(driver.id)}
+                    className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-4 transition-colors"
+                  >
+                    <Play className="h-8 w-8 text-black fill-black" />
+                  </button>
+                </>
+              )}
               
               {/* Rank Badge in top-left */}
               <div className="absolute top-3 left-3 z-10">
@@ -209,6 +255,7 @@ export default function LeaderboardPage() {
   const [selectedVideo, setSelectedVideo] = useState<WorstDriver | null>(null)
   const [comments, setComments] = useState<{[key: string]: Array<{id: string; author: string; comment: string; timestamp: string; likes: number}>}>({})
   const [newComment, setNewComment] = useState("")
+  const [playingVideos, setPlayingVideos] = useState<{[key: string]: boolean}>({})
 
   useEffect(() => {
     fetchWorstDrivers()
@@ -300,6 +347,10 @@ export default function LeaderboardPage() {
     }))
   }
 
+  const handleVideoPlay = (driverId: string) => {
+    setPlayingVideos(prev => ({ ...prev, [driverId]: true }))
+  }
+
   const getRankIcon = (rank: number) => {
     if (rank === 1) return <span className="text-2xl">🫏</span>
     if (rank === 2) return <span className="text-2xl">💩</span>
@@ -386,7 +437,13 @@ export default function LeaderboardPage() {
 
 
         {/* Top 3 Carousel */}
-        <CarouselSection drivers={worstDrivers.slice(0, 3)} getRankIcon={getRankIcon} onVideoSelect={setSelectedVideo} />
+        <CarouselSection 
+          drivers={worstDrivers.slice(0, 3)} 
+          getRankIcon={getRankIcon} 
+          onVideoSelect={setSelectedVideo} 
+          onVideoPlay={handleVideoPlay}
+          playingVideos={playingVideos}
+        />
 
         {/* Full Leaderboard - Card Grid */}
         <div className="mb-8">
@@ -489,11 +546,30 @@ export default function LeaderboardPage() {
               >
                 {/* Video Section */}
                 <div className="relative bg-black rounded-t-xl h-40 flex items-center justify-center">
-                  {/* Placeholder for video thumbnail - you can replace this with actual video */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 rounded-t-xl"></div>
-                  <button className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-3 transition-colors">
-                    <Play className="h-6 w-6 text-black fill-black" />
-                  </button>
+                  {playingVideos[driver.id] ? (
+                    <video
+                      src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
+                      poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
+                      className="absolute inset-0 w-full h-full object-cover rounded-t-xl"
+                      controls
+                      autoPlay
+                    />
+                  ) : (
+                    <>
+                      <img 
+                        src="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg" 
+                        alt="Video thumbnail"
+                        className="absolute inset-0 w-full h-full object-cover rounded-t-xl"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 rounded-t-xl"></div>
+                      <button 
+                        onClick={() => handleVideoPlay(driver.id)}
+                        className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-3 transition-colors"
+                      >
+                        <Play className="h-6 w-6 text-black fill-black" />
+                      </button>
+                    </>
+                  )}
                   
                   {/* Rank Badge in top-left */}
                   <div className="absolute top-3 left-3 z-10">
@@ -566,10 +642,13 @@ export default function LeaderboardPage() {
               <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 p-4 md:p-6 overflow-hidden">
                 {/* Video Section */}
                 <div className="lg:col-span-2 h-48 md:h-auto">
-                  <div className="bg-black rounded-lg h-full md:h-96 flex items-center justify-center">
-                    <button className="bg-yellow-400 hover:bg-yellow-500 rounded-full p-6 transition-colors">
-                      <Play className="h-12 w-12 text-black fill-black" />
-                    </button>
+                  <div className="bg-black rounded-lg h-full md:h-96 flex items-center justify-center relative overflow-hidden">
+                    <video
+                      src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
+                      poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      controls
+                    />
                   </div>
                 </div>
 
