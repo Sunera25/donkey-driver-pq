@@ -1,21 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Script from "next/script";
-
-// Add TypeScript declarations for HLS.js
-declare global {
-  interface Window {
-    Hls: {
-      new(): any;
-      isSupported(): boolean;
-      Events: {
-        MANIFEST_PARSED: string;
-        ERROR: string;
-      };
-    };
-  }
-}
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -124,7 +109,6 @@ function CarouselSection({
                     {playingVideos[driver.id] ? (
                       <video
                         data-driver-id={driver.id}
-                        data-src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
                         poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
                         className="absolute inset-0 w-full h-full object-cover"
                         controls
@@ -231,8 +215,7 @@ function CarouselSection({
               {playingVideos[driver.id] ? (
                 <video
                   data-driver-id={driver.id}
-                  data-src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
-                  poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
+                  src="https://raw.githubusercontent.com/Sunera25/donkeyvdo/a005a2285e571b8e699193788f71bd0f19129655/AQO4qDD1AFd6R6oY-jEs10otQ6peQKIZWqQTwO4-nenlSU6XreaiblFtipDgtA4KCJyXkZuJFPpV1Mp00y4p38nB3nqts81qFfchYj5Gyal95w.mp4"
                   className="absolute inset-0 w-full h-full object-cover"
                   controls
                   autoPlay
@@ -306,13 +289,13 @@ function CarouselSection({
 }
 
 export default function LeaderboardPage() {
-  const [worstDrivers, setWorstDrivers] = useState<WorstDriver[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [timeFilter, setTimeFilter] = useState("all")
-  const [locationFilter, setLocationFilter] = useState("all")
-  const [sortBy, setSortBy] = useState("violations")
-  const [selectedVideo, setSelectedVideo] = useState<WorstDriver | null>(null)
+  const [worstDrivers, setWorstDrivers] = useState<WorstDriver[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [timeFilter, setTimeFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("violations");
+  const [selectedVideo, setSelectedVideo] = useState<WorstDriver | null>(null);
   const [comments, setComments] = useState<{
     [key: string]: Array<{
       id: string;
@@ -321,31 +304,23 @@ export default function LeaderboardPage() {
       timestamp: string;
       likes: number;
     }>;
-  }>({})
-  const [newComment, setNewComment] = useState("")
+  }>({});
+  const [newComment, setNewComment] = useState("");
   const [playingVideos, setPlayingVideos] = useState<{
     [key: string]: boolean;
-  }>({})
-  const [hlsLoaded, setHlsLoaded] = useState(false);
+  }>({});
+
+  // Array of video links for random selection
+  const videoLinks = [
+    "https://raw.githubusercontent.com/Sunera25/donkeyvdo/a005a2285e571b8e699193788f71bd0f19129655/AQO4qDD1AFd6R6oY-jEs10otQ6peQKIZWqQTwO4-nenlSU6XreaiblFtipDgtA4KCJyXkZuJFPpV1Mp00y4p38nB3nqts81qFfchYj5Gyal95w.mp4",
+
+    "https://raw.githubusercontent.com/Sunera25/donkeyvdo/a005a2285e571b8e699193788f71bd0f19129655/AQNm8gUvJ3JSn5AdcEPp7C77mhYu54Amh_TqrvoEl_Vj4MdZn1b86uUl9cRZj_vhgTqiYK7To9WRr1aB8OMc_6_2u59ybep26ryFbZKW1tdQCA.mp4",
+
+    "https://raw.githubusercontent.com/Sunera25/donkeyvdo/a005a2285e571b8e699193788f71bd0f19129655/AQOzHzEpx5MIUpwx-agpvrKkOvXz_1T6NTuiH-W5UamX36ctSkVaF_xEgIqI29ffHb8bC9FJ1x1rT9ebkozLjnO2iAnzaFdIM8t9EJAwQLWiow.mp4",
+  ];
 
   useEffect(() => {
     fetchWorstDrivers();
-  }, []);
-  
-  // Add HLS.js script
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest';
-    script.async = true;
-    script.onload = () => {
-      console.log('HLS.js loaded successfully');
-      setHlsLoaded(true);
-    };
-    document.body.appendChild(script);
-    
-    return () => {
-      document.body.removeChild(script);
-    };
   }, []);
 
   useEffect(() => {
@@ -353,37 +328,26 @@ export default function LeaderboardPage() {
       generateDummyComments();
     }
   }, [worstDrivers]);
-  
-  // Initialize HLS.js for the dialog video when a video is selected
+
+  // Auto-play the dialog video when a video is selected
   useEffect(() => {
-    if (selectedVideo && typeof window !== 'undefined' && window.Hls) {
+    if (selectedVideo) {
       setTimeout(() => {
         try {
-          console.log('Initializing HLS.js for dialog video');
-          const videoElement = document.querySelector(`video[data-driver-id="${selectedVideo.id}"]`);
-          
+          console.log("Playing dialog video");
+          const videoElement = document.querySelector(
+            `video[data-driver-id="${selectedVideo.id}"]`
+          ) as HTMLVideoElement;
+
           if (videoElement) {
-            console.log('Found dialog video element');
-            const videoSrc = videoElement.getAttribute('data-src') || "https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8";
-            
-            try {
-              const hls = new window.Hls();
-              hls.loadSource(videoSrc);
-              hls.attachMedia(videoElement as HTMLVideoElement);
-              hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
-                console.log('Dialog video HLS manifest loaded');
-              });
-              hls.on(window.Hls.Events.ERROR, (event: any, data: any) => {
-                console.error('Dialog video HLS error:', data);
-              });
-            } catch (e) {
-              console.error('Error initializing dialog video HLS:', e);
-            }
+            videoElement
+              .play()
+              .catch((e) => console.error("Error playing dialog video:", e));
           }
         } catch (e) {
-          console.error('Error in dialog video HLS initialization:', e);
+          console.error("Error playing dialog video:", e);
         }
-      }, 300); // Longer delay to ensure dialog is fully rendered
+      }, 300); // Delay to ensure dialog is fully rendered
     }
   }, [selectedVideo]);
 
@@ -491,50 +455,31 @@ export default function LeaderboardPage() {
   const handleVideoPlay = (driverId: string) => {
     console.log("Playing video for driver:", driverId);
     setPlayingVideos((prev) => ({ ...prev, [driverId]: true }));
-    
-    // Initialize HLS.js for video playback after state update
+
+    // Get a random video from the videoLinks array
+    const randomIndex = Math.floor(Math.random() * videoLinks.length);
+    const randomVideoUrl = videoLinks[randomIndex];
+    console.log("Selected random video:", randomVideoUrl);
+
+    // Simple video playback without HLS.js
     setTimeout(() => {
-      if (typeof window !== 'undefined' && window.Hls) {
-        try {
-          console.log('Using HLS.js for video playback');
-          const videoElements = document.querySelectorAll(`video[data-driver-id="${driverId}"]`);
-          console.log('Found video elements:', videoElements.length);
-          
-          videoElements.forEach(videoEl => {
-            const videoSrc = videoEl.getAttribute('data-src') || "https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8";
-            console.log('Video source:', videoSrc);
-            
-            try {
-              const hls = new window.Hls();
-              hls.loadSource(videoSrc);
-              hls.attachMedia(videoEl as HTMLVideoElement);
-              hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
-                console.log('HLS manifest loaded, starting playback');
-                (videoEl as HTMLVideoElement).play().catch(e => console.error('Error playing video:', e));
-              });
-              hls.on(window.Hls.Events.ERROR, (event: any, data: any) => {
-                console.error('HLS error:', data);
-              });
-            } catch (e) {
-              console.error('Error initializing HLS:', e);
-            }
-          });
-        } catch (e) {
-          console.error('Error in HLS initialization:', e);
-        }
-      } else if (document.createElement('video').canPlayType('application/vnd.apple.mpegurl')) {
-        console.log('Using native HLS support');
-        // Browser supports HLS natively (Safari)
-        const videoElements = document.querySelectorAll(`video[data-driver-id="${driverId}"]`);
-        videoElements.forEach(videoEl => {
-          const videoSrc = videoEl.getAttribute('data-src') || "https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8";
-          if (videoSrc) {
-            (videoEl as HTMLVideoElement).src = videoSrc;
-            (videoEl as HTMLVideoElement).play().catch(e => console.error('Error playing video:', e));
-          }
+      try {
+        console.log("Playing video for driver ID:", driverId);
+        const videoElements = document.querySelectorAll(
+          `video[data-driver-id="${driverId}"]`
+        );
+        console.log("Found video elements:", videoElements.length);
+
+        videoElements.forEach((videoEl) => {
+          // Set the random video URL as the source
+          (videoEl as HTMLVideoElement).src = randomVideoUrl;
+          console.log("Playing video element with random source");
+          (videoEl as HTMLVideoElement)
+            .play()
+            .catch((e) => console.error("Error playing video:", e));
         });
-      } else {
-        console.error('HLS is not supported in this browser and HLS.js is not loaded');
+      } catch (e) {
+        console.error("Error playing video:", e);
       }
     }, 100); // Small delay to ensure DOM is updated
   };
@@ -753,7 +698,7 @@ export default function LeaderboardPage() {
                 <div className="relative bg-black rounded-t-xl h-40 flex items-center justify-center">
                   {playingVideos[driver.id] ? (
                     <video
-                      src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
+                      src="https://raw.githubusercontent.com/Sunera25/donkeyvdo/a005a2285e571b8e699193788f71bd0f19129655/AQO4qDD1AFd6R6oY-jEs10otQ6peQKIZWqQTwO4-nenlSU6XreaiblFtipDgtA4KCJyXkZuJFPpV1Mp00y4p38nB3nqts81qFfchYj5Gyal95w.mp4"
                       poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
                       className="absolute inset-0 w-full h-full object-cover rounded-t-xl"
                       controls
@@ -863,7 +808,7 @@ export default function LeaderboardPage() {
                   <div className="bg-black rounded-lg h-full md:h-96 flex items-center justify-center relative overflow-hidden">
                     <video
                       data-driver-id={selectedVideo.id}
-                      data-src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
+                      src="https://raw.githubusercontent.com/Sunera25/donkeyvdo/a005a2285e571b8e699193788f71bd0f19129655/AQO4qDD1AFd6R6oY-jEs10otQ6peQKIZWqQTwO4-nenlSU6XreaiblFtipDgtA4KCJyXkZuJFPpV1Mp00y4p38nB3nqts81qFfchYj5Gyal95w.mp4"
                       poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
                       className="absolute inset-0 w-full h-full object-cover"
                       controls
