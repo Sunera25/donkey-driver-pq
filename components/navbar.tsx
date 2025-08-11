@@ -42,50 +42,65 @@ export function Navbar() {
   return (
     <>
       {/* Desktop Navbar - Top */}
-      <nav className="hidden md:block bg-black text-yellow-400 p-4 shadow-lg sticky top-0 z-50 rounded-b-2xl mx-4">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-between">
-            {/* Left Side - Home and Worst Drivers */}
-            <div className="flex items-center space-x-4">
+      <nav className="hidden md:block bg-black text-yellow-400 shadow-lg sticky top-0 z-50">
+        <div className="container mx-auto px-6">
+          <div className="flex items-center justify-between h-16">
+            {/* Left Side - Logo */}
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-yellow-400 p-0.5">
+                <Image
+                  src="/images/donkey-logo.jpeg"
+                  alt="Donkey Driver Logo"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h1 className="text-2xl font-bold">Donkey Driver</h1>
+            </Link>
+
+            {/* Center - Navigation Links */}
+            <div className="flex items-center space-x-8">
               <Link
                 href="/"
-                className="flex items-center space-x-2 hover:text-yellow-300 transition-colors"
+                className="flex items-center space-x-2 hover:text-yellow-300 transition-colors font-medium"
               >
-                <Home className="h-6 w-6" />
+                <Home className="h-5 w-5" />
                 <span>Home</span>
               </Link>
               <Link
                 href="/leaderboard"
-                className="flex items-center space-x-2 hover:text-yellow-300 transition-colors"
+                className="flex items-center space-x-2 hover:text-yellow-300 transition-colors font-medium"
               >
-                <TrendingDown className="h-6 w-6" />
+                <TrendingDown className="h-5 w-5" />
                 <span>Worst Drivers</span>
+              </Link>
+              <Link
+                href="/driving-rules"
+                className="flex items-center space-x-2 hover:text-yellow-300 transition-colors font-medium"
+              >
+                <BookOpen className="h-5 w-5" />
+                <span>Driving Rules</span>
               </Link>
             </div>
 
-            {/* Center - Logo and Camera */}
+            {/* Right Side - Camera and Settings */}
             <div className="flex items-center space-x-4">
-              <Link href="/" className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-yellow-400 p-1">
-                  <Image
-                    src="/images/donkey-logo.jpeg"
-                    alt="Donkey Driver Logo"
-                    width={48}
-                    height={48}
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                </div>
-                <h1 className="text-xl font-bold">Donkey Driver</h1>
-              </Link>
-
-              {/* Camera Button */}
               <Button
                 onClick={handleCameraClick}
                 disabled={isCapturing}
-                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold p-4 rounded-full"
-                size="lg"
+                className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-full transition-all hover:scale-105"
+                size="icon"
               >
-                <Camera className="h-8 w-8" />
+                <Camera className="h-5 w-5" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="flex items-center space-x-2 hover:text-yellow-300 text-yellow-400 font-medium"
+              >
+                <Settings className="h-5 w-5" />
+                <span>Settings</span>
               </Button>
 
               {/* Hidden camera input */}
@@ -98,93 +113,77 @@ export function Navbar() {
                 className="hidden"
               />
             </div>
-
-            {/* Right Side - Driving Rules and Settings */}
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/driving-rules"
-                className="flex items-center space-x-2 hover:text-yellow-300 transition-colors"
-              >
-                <BookOpen className="h-6 w-6" />
-                <span>Driving Rules</span>
-              </Link>
-              <Button
-                variant="ghost"
-                className="flex items-center space-x-2 hover:text-yellow-300 text-yellow-400"
-              >
-                <Settings className="h-6 w-6" />
-                <span>Settings</span>
-              </Button>
-            </div>
           </div>
         </div>
       </nav>
       {/* Mobile Header - Fixed at Top */}
-      <div className="md:hidden fixed top-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-b border-yellow-400 w-full py-1">
-        <div className="flex items-center justify-center p-4 gap-x-4">
-          <div className="w-8 h-8 rounded-full overflow-hidden bg-yellow-400 p-0.5 mr-2">
-            <Image
-              src="/images/donkey-logo.jpeg"
-              alt="Donkey Driver Logo"
-              width={32}
-              height={32}
-              className="w-full h-full object-cover rounded-full"
-            />
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-b border-yellow-400 w-full">
+        <div className="flex items-center justify-center py-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-yellow-400 p-0.5">
+              <Image
+                src="/images/donkey-logo.jpeg"
+                alt="Donkey Driver Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover rounded-full"
+              />
+            </div>
+            <h1 className="text-xl font-bold">Donkey Driver</h1>
           </div>
-          <h1 className="text-lg font-bold">Donkey Watch</h1>
         </div>
       </div>
       {/* Mobile Navbar - Fixed at Bottom */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-t border-yellow-400 w-full">
-        <div className="p-3">
-          <div className="flex items-center justify-between w-full relative">
+        <div className="px-2 pb-2 pt-3">
+          <div className="flex items-center justify-around w-full relative">
             {/* Home */}
-            <Link href="/" className="flex flex-col items-center w-16">
-              <Home className="h-6 w-6" />
-              <span className="text-xs mt-1">Home</span>
+            <Link href="/" className="flex flex-col items-center flex-1 py-2">
+              <Home className="h-5 w-5" />
+              <span className="text-xs mt-1 font-medium">Home</span>
             </Link>
 
             {/* Worst */}
             <Link
               href="/leaderboard"
-              className="flex flex-col items-center w-16"
+              className="flex flex-col items-center flex-1 py-2"
             >
-              <TrendingDown className="h-6 w-6" />
-              <span className="text-xs mt-1">Worst</span>
+              <TrendingDown className="h-5 w-5" />
+              <span className="text-xs mt-1 font-medium">Worst</span>
             </Link>
 
             {/* Spacer for Camera */}
-            <div className="w-16" />
+            <div className="flex-1" />
 
             {/* Rules */}
             <Link
               href="/driving-rules"
-              className="flex flex-col items-center w-16"
+              className="flex flex-col items-center flex-1 py-2"
             >
-              <BookOpen className="h-6 w-6" />
-              <span className="text-xs mt-1">Rules</span>
+              <BookOpen className="h-5 w-5" />
+              <span className="text-xs mt-1 font-medium">Rules</span>
             </Link>
 
             {/* Settings */}
             <Button
               variant="ghost"
-              className="flex flex-col items-center w-16 text-yellow-400"
+              className="flex flex-col items-center flex-1 py-2 text-yellow-400 hover:text-yellow-300"
             >
-              <Settings className="h-6 w-6" />
-              <span className="text-xs mt-1">Settings</span>
+              <Settings className="h-5 w-5" />
+              <span className="text-xs mt-1 font-medium">Settings</span>
             </Button>
 
-            {/* Floating Camera */}
-            <div className="absolute left-1/2 -translate-x-1/2 -top-10">
+            {/* Floating Camera - Centered */}
+            <div className="absolute left-1/2 -translate-x-1/2 -top-8">
               <Button
                 onClick={handleCameraClick}
                 disabled={isCapturing}
                 className="bg-yellow-400 hover:bg-yellow-500 active:scale-95 
-                     transition-transform duration-200 text-black font-semibold 
-                     p-6 rounded-full shadow-lg hover:shadow-xl"
-                style={{ width: "80px", height: "80px" }}
+                     transition-all duration-200 text-black font-semibold 
+                     rounded-full shadow-xl hover:shadow-2xl border-4 border-black"
+                style={{ width: "72px", height: "72px" }}
               >
-                <Camera className="h-10 w-10" />
+                <Camera className="h-8 w-8" />
               </Button>
             </div>
           </div>

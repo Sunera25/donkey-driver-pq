@@ -301,9 +301,9 @@ export default function LeaderboardPage() {
   }
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-500" />
-    if (rank === 2) return <Trophy className="h-6 w-6 text-gray-400" />
-    if (rank === 3) return <Trophy className="h-6 w-6 text-amber-600" />
+    if (rank === 1) return <span className="text-2xl">🫏</span>
+    if (rank === 2) return <span className="text-2xl">💩</span>
+    if (rank === 3) return <span className="text-2xl">🐴</span>
     return <span className="text-2xl font-bold text-black">#{rank}</span>
   }
 
