@@ -109,6 +109,7 @@ function CarouselSection({
                     {playingVideos[driver.id] ? (
                       <video
                         data-driver-id={driver.id}
+                        src="https://raw.githubusercontent.com/Sunera25/donkeyvdo/a005a2285e571b8e699193788f71bd0f19129655/AQO4qDD1AFd6R6oY-jEs10otQ6peQKIZWqQTwO4-nenlSU6XreaiblFtipDgtA4KCJyXkZuJFPpV1Mp00y4p38nB3nqts81qFfchYj5Gyal95w.mp4"
                         poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
                         className="absolute inset-0 w-full h-full object-cover"
                         controls
@@ -310,15 +311,6 @@ export default function LeaderboardPage() {
     [key: string]: boolean;
   }>({});
 
-  // Array of video links for random selection
-  const videoLinks = [
-    "https://raw.githubusercontent.com/Sunera25/donkeyvdo/a005a2285e571b8e699193788f71bd0f19129655/AQO4qDD1AFd6R6oY-jEs10otQ6peQKIZWqQTwO4-nenlSU6XreaiblFtipDgtA4KCJyXkZuJFPpV1Mp00y4p38nB3nqts81qFfchYj5Gyal95w.mp4",
-
-    "https://raw.githubusercontent.com/Sunera25/donkeyvdo/a005a2285e571b8e699193788f71bd0f19129655/AQNm8gUvJ3JSn5AdcEPp7C77mhYu54Amh_TqrvoEl_Vj4MdZn1b86uUl9cRZj_vhgTqiYK7To9WRr1aB8OMc_6_2u59ybep26ryFbZKW1tdQCA.mp4",
-
-    "https://raw.githubusercontent.com/Sunera25/donkeyvdo/a005a2285e571b8e699193788f71bd0f19129655/AQOzHzEpx5MIUpwx-agpvrKkOvXz_1T6NTuiH-W5UamX36ctSkVaF_xEgIqI29ffHb8bC9FJ1x1rT9ebkozLjnO2iAnzaFdIM8t9EJAwQLWiow.mp4",
-  ];
-
   useEffect(() => {
     fetchWorstDrivers();
   }, []);
@@ -456,11 +448,6 @@ export default function LeaderboardPage() {
     console.log("Playing video for driver:", driverId);
     setPlayingVideos((prev) => ({ ...prev, [driverId]: true }));
 
-    // Get a random video from the videoLinks array
-    const randomIndex = Math.floor(Math.random() * videoLinks.length);
-    const randomVideoUrl = videoLinks[randomIndex];
-    console.log("Selected random video:", randomVideoUrl);
-
     // Simple video playback without HLS.js
     setTimeout(() => {
       try {
@@ -471,9 +458,7 @@ export default function LeaderboardPage() {
         console.log("Found video elements:", videoElements.length);
 
         videoElements.forEach((videoEl) => {
-          // Set the random video URL as the source
-          (videoEl as HTMLVideoElement).src = randomVideoUrl;
-          console.log("Playing video element with random source");
+          console.log("Playing video element");
           (videoEl as HTMLVideoElement)
             .play()
             .catch((e) => console.error("Error playing video:", e));
