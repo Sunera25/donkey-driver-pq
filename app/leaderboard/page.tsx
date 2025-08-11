@@ -1,79 +1,130 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Trophy, TrendingDown, Calendar, MapPin, Filter, Loader2, AlertTriangle, Car, Play, MessageCircle, Send, Heart, Maximize2 } from "lucide-react"
-import { Navbar } from "@/components/navbar"
-import { leaderboardAPI, type WorstDriver } from "@/lib/api"
-import Link from "next/link"
+import { useState, useEffect, useRef } from "react";
+import Script from "next/script";
+
+// Add TypeScript declarations for HLS.js
+declare global {
+  interface Window {
+    Hls: {
+      new(): any;
+      isSupported(): boolean;
+      Events: {
+        MANIFEST_PARSED: string;
+        ERROR: string;
+      };
+    };
+  }
+}
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Trophy,
+  TrendingDown,
+  Calendar,
+  MapPin,
+  Filter,
+  Loader2,
+  AlertTriangle,
+  Car,
+  Play,
+  MessageCircle,
+  Send,
+  Heart,
+  Maximize2,
+} from "lucide-react";
+import { Navbar } from "@/components/navbar";
+import { leaderboardAPI, type WorstDriver } from "@/lib/api";
+import Link from "next/link";
 
 // Carousel Component for Top 3
-function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, playingVideos }: { 
-  drivers: WorstDriver[], 
-  getRankIcon: (rank: number) => JSX.Element, 
-  onVideoSelect: (driver: WorstDriver) => void,
-  onVideoPlay: (driverId: string) => void,
-  playingVideos: {[key: string]: boolean}
+function CarouselSection({
+  drivers,
+  getRankIcon,
+  onVideoSelect,
+  onVideoPlay,
+  playingVideos,
+}: {
+  drivers: WorstDriver[];
+  getRankIcon: (rank: number) => JSX.Element;
+  onVideoSelect: (driver: WorstDriver) => void;
+  onVideoPlay: (driverId: string) => void;
+  playingVideos: { [key: string]: boolean };
 }) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (drivers.length > 1) {
       intervalRef.current = setInterval(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % drivers.length)
-      }, 3000) // Auto-slide every 3 seconds
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % drivers.length);
+      }, 3000); // Auto-slide every 3 seconds
     }
 
     return () => {
       if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+        clearInterval(intervalRef.current);
       }
-    }
-  }, [drivers.length])
+    };
+  }, [drivers.length]);
 
   const handleManualSlide = (index: number) => {
-    setCurrentIndex(index)
+    setCurrentIndex(index);
     if (intervalRef.current) {
-      clearInterval(intervalRef.current)
+      clearInterval(intervalRef.current);
       // Restart auto-sliding after manual interaction
       intervalRef.current = setInterval(() => {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % drivers.length)
-      }, 3000)
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % drivers.length);
+      }, 3000);
     }
-  }
+  };
 
-  if (drivers.length === 0) return null
+  if (drivers.length === 0) return null;
 
   return (
     <div className="mb-8">
-      <h3 className="text-2xl font-bold text-center text-black mb-8">Hall of Shame - Top 3</h3>
-      
+      <h3 className="text-2xl font-bold text-center text-black mb-8">
+        Hall of Shame - Top 3
+      </h3>
+
       {/* Mobile Carousel */}
       <div className="md:hidden relative">
         <div className="overflow-hidden">
-          <div 
+          <div
             className="flex transition-transform duration-500 ease-in-out"
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
           >
             {drivers.map((driver, index) => (
               <div key={driver.id} className="w-full flex-shrink-0 px-4">
-                <Card className={`border-3 ${
-                  driver.rank === 1
-                    ? "border-yellow-500"
-                    : driver.rank === 2
+                <Card
+                  className={`border-3 ${
+                    driver.rank === 1
+                      ? "border-yellow-500"
+                      : driver.rank === 2
                       ? "border-yellow-400"
                       : "border-yellow-300"
-                } shadow-lg rounded-2xl overflow-hidden`}>
+                  } shadow-lg rounded-2xl overflow-hidden`}
+                >
                   {/* Video Section */}
                   <div className="relative bg-black h-48 flex items-center justify-center">
                     {playingVideos[driver.id] ? (
                       <video
-                        src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
+                        data-driver-id={driver.id}
+                        data-src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
                         poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
                         className="absolute inset-0 w-full h-full object-cover"
                         controls
@@ -81,13 +132,13 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, pla
                       />
                     ) : (
                       <>
-                        <img 
-                          src="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg" 
+                        <img
+                          src="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
                           alt="Video thumbnail"
                           className="absolute inset-0 w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
-                        <button 
+                        <button
                           onClick={() => onVideoPlay(driver.id)}
                           className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-4 transition-colors"
                         >
@@ -95,19 +146,21 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, pla
                         </button>
                       </>
                     )}
-                    
+
                     {/* Rank Badge in top-left */}
                     <div className="absolute top-3 left-3 z-10">
-                      <div className="flex items-center">{getRankIcon(driver.rank)}</div>
+                      <div className="flex items-center">
+                        {getRankIcon(driver.rank)}
+                      </div>
                     </div>
-                    
+
                     {/* Donkey Points in top-right */}
                     <div className="absolute top-3 right-3 z-10">
                       <Badge className="bg-yellow-400 text-black px-3 py-1 text-sm font-bold">
                         {Math.abs(driver.points)} pts
                       </Badge>
                     </div>
-                    
+
                     {/* Location in bottom-right */}
                     <div className="absolute bottom-3 right-3 z-10">
                       <div className="bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center space-x-1">
@@ -116,10 +169,12 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, pla
                       </div>
                     </div>
                   </div>
-                  
+
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-mono font-bold text-sm text-black">{driver.id}</h3>
+                      <h3 className="font-mono font-bold text-sm text-black">
+                        {driver.id}
+                      </h3>
                       <div className="flex items-center space-x-2">
                         <Link
                           href={`/driver/${driver.id}`}
@@ -141,7 +196,7 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, pla
             ))}
           </div>
         </div>
-        
+
         {/* Carousel Indicators */}
         {drivers.length > 1 && (
           <div className="flex justify-center space-x-2 mt-4">
@@ -167,15 +222,16 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, pla
               index === 0
                 ? "border-yellow-500 transform scale-105"
                 : index === 1
-                  ? "border-yellow-400"
-                  : "border-yellow-300"
+                ? "border-yellow-400"
+                : "border-yellow-300"
             } shadow-lg rounded-2xl overflow-hidden`}
           >
             {/* Video Section */}
             <div className="relative bg-black h-48 flex items-center justify-center">
               {playingVideos[driver.id] ? (
                 <video
-                  src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
+                  data-driver-id={driver.id}
+                  data-src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
                   poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
                   className="absolute inset-0 w-full h-full object-cover"
                   controls
@@ -183,13 +239,13 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, pla
                 />
               ) : (
                 <>
-                  <img 
-                    src="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg" 
+                  <img
+                    src="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
                     alt="Video thumbnail"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
-                  <button 
+                  <button
                     onClick={() => onVideoPlay(driver.id)}
                     className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-4 transition-colors"
                   >
@@ -197,19 +253,21 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, pla
                   </button>
                 </>
               )}
-              
+
               {/* Rank Badge in top-left */}
               <div className="absolute top-3 left-3 z-10">
-                <div className="flex items-center">{getRankIcon(driver.rank)}</div>
+                <div className="flex items-center">
+                  {getRankIcon(driver.rank)}
+                </div>
               </div>
-              
+
               {/* Donkey Points in top-right */}
               <div className="absolute top-3 right-3 z-10">
                 <Badge className="bg-yellow-400 text-black px-3 py-1 text-sm font-bold">
                   {Math.abs(driver.points)} pts
                 </Badge>
               </div>
-              
+
               {/* Location in bottom-right */}
               <div className="absolute bottom-3 right-3 z-10">
                 <div className="bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center space-x-1">
@@ -218,10 +276,12 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, pla
                 </div>
               </div>
             </div>
-            
+
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
-                <h3 className="font-mono font-bold text-sm text-black">{driver.id}</h3>
+                <h3 className="font-mono font-bold text-sm text-black">
+                  {driver.id}
+                </h3>
                 <div className="flex items-center space-x-2">
                   <Link
                     href={`/driver/${driver.id}`}
@@ -242,7 +302,7 @@ function CarouselSection({ drivers, getRankIcon, onVideoSelect, onVideoPlay, pla
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 export default function LeaderboardPage() {
@@ -253,36 +313,104 @@ export default function LeaderboardPage() {
   const [locationFilter, setLocationFilter] = useState("all")
   const [sortBy, setSortBy] = useState("violations")
   const [selectedVideo, setSelectedVideo] = useState<WorstDriver | null>(null)
-  const [comments, setComments] = useState<{[key: string]: Array<{id: string; author: string; comment: string; timestamp: string; likes: number}>}>({})
+  const [comments, setComments] = useState<{
+    [key: string]: Array<{
+      id: string;
+      author: string;
+      comment: string;
+      timestamp: string;
+      likes: number;
+    }>;
+  }>({})
   const [newComment, setNewComment] = useState("")
-  const [playingVideos, setPlayingVideos] = useState<{[key: string]: boolean}>({})
+  const [playingVideos, setPlayingVideos] = useState<{
+    [key: string]: boolean;
+  }>({})
+  const [hlsLoaded, setHlsLoaded] = useState(false);
 
   useEffect(() => {
-    fetchWorstDrivers()
-  }, [])
+    fetchWorstDrivers();
+  }, []);
+  
+  // Add HLS.js script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest';
+    script.async = true;
+    script.onload = () => {
+      console.log('HLS.js loaded successfully');
+      setHlsLoaded(true);
+    };
+    document.body.appendChild(script);
+    
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
     if (worstDrivers.length > 0) {
-      generateDummyComments()
+      generateDummyComments();
     }
-  }, [worstDrivers])
+  }, [worstDrivers]);
+  
+  // Initialize HLS.js for the dialog video when a video is selected
+  useEffect(() => {
+    if (selectedVideo && typeof window !== 'undefined' && window.Hls) {
+      setTimeout(() => {
+        try {
+          console.log('Initializing HLS.js for dialog video');
+          const videoElement = document.querySelector(`video[data-driver-id="${selectedVideo.id}"]`);
+          
+          if (videoElement) {
+            console.log('Found dialog video element');
+            const videoSrc = videoElement.getAttribute('data-src') || "https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8";
+            
+            try {
+              const hls = new window.Hls();
+              hls.loadSource(videoSrc);
+              hls.attachMedia(videoElement as HTMLVideoElement);
+              hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
+                console.log('Dialog video HLS manifest loaded');
+              });
+              hls.on(window.Hls.Events.ERROR, (event: any, data: any) => {
+                console.error('Dialog video HLS error:', data);
+              });
+            } catch (e) {
+              console.error('Error initializing dialog video HLS:', e);
+            }
+          }
+        } catch (e) {
+          console.error('Error in dialog video HLS initialization:', e);
+        }
+      }, 300); // Longer delay to ensure dialog is fully rendered
+    }
+  }, [selectedVideo]);
 
   const fetchWorstDrivers = async () => {
     try {
-      setLoading(true)
-      const data = await leaderboardAPI.getWorstDrivers()
-      setWorstDrivers(data)
+      setLoading(true);
+      const data = await leaderboardAPI.getWorstDrivers();
+      setWorstDrivers(data);
     } catch (err) {
-      setError("Failed to fetch leaderboard data")
-      console.error(err)
+      setError("Failed to fetch leaderboard data");
+      console.error(err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const generateDummyComments = () => {
-    const dummyComments: {[key: string]: Array<{id: string; author: string; comment: string; timestamp: string; likes: number}>} = {}
-    
+    const dummyComments: {
+      [key: string]: Array<{
+        id: string;
+        author: string;
+        comment: string;
+        timestamp: string;
+        likes: number;
+      }>;
+    } = {};
+
     const sampleComments = [
       "This driver is absolutely reckless!",
       "I see this car speeding every day on my commute.",
@@ -293,29 +421,41 @@ export default function LeaderboardPage() {
       "I've reported this driver multiple times.",
       "They park illegally too!",
       "Worst driver in the city for sure.",
-      "Hope they get their license revoked."
-    ]
-    
-    const authors = ["RoadSafety101", "ConcernedCitizen", "DailyCommuter", "SafeDriver", "TrafficWatcher", "LocalResident", "CarefulDriver", "AnonymousReporter"]
-    
+      "Hope they get their license revoked.",
+    ];
+
+    const authors = [
+      "RoadSafety101",
+      "ConcernedCitizen",
+      "DailyCommuter",
+      "SafeDriver",
+      "TrafficWatcher",
+      "LocalResident",
+      "CarefulDriver",
+      "AnonymousReporter",
+    ];
+
     // Generate 2-4 comments per driver
     worstDrivers.forEach((driver) => {
-      const numComments = Math.floor(Math.random() * 3) + 2
-      dummyComments[driver.id] = []
-      
+      const numComments = Math.floor(Math.random() * 3) + 2;
+      dummyComments[driver.id] = [];
+
       for (let i = 0; i < numComments; i++) {
         dummyComments[driver.id].push({
           id: `comment-${driver.id}-${i}`,
           author: authors[Math.floor(Math.random() * authors.length)],
-          comment: sampleComments[Math.floor(Math.random() * sampleComments.length)],
-          timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-          likes: Math.floor(Math.random() * 20)
-        })
+          comment:
+            sampleComments[Math.floor(Math.random() * sampleComments.length)],
+          timestamp: new Date(
+            Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000
+          ).toLocaleDateString(),
+          likes: Math.floor(Math.random() * 20),
+        });
       }
-    })
-    
-    setComments(dummyComments)
-  }
+    });
+
+    setComments(dummyComments);
+  };
 
   const handleAddComment = () => {
     if (newComment.trim() && selectedVideo) {
@@ -324,46 +464,94 @@ export default function LeaderboardPage() {
         author: "You",
         comment: newComment.trim(),
         timestamp: new Date().toLocaleDateString(),
-        likes: 0
-      }
-      
-      setComments(prev => ({
+        likes: 0,
+      };
+
+      setComments((prev) => ({
         ...prev,
-        [selectedVideo.id]: [...(prev[selectedVideo.id] || []), newCommentObj]
-      }))
-      
-      setNewComment("")
+        [selectedVideo.id]: [...(prev[selectedVideo.id] || []), newCommentObj],
+      }));
+
+      setNewComment("");
     }
-  }
+  };
 
   const handleLikeComment = (driverId: string, commentId: string) => {
-    setComments(prev => ({
+    setComments((prev) => ({
       ...prev,
-      [driverId]: prev[driverId]?.map(comment => 
-        comment.id === commentId 
-          ? { ...comment, likes: comment.likes + 1 }
-          : comment
-      ) || []
-    }))
-  }
+      [driverId]:
+        prev[driverId]?.map((comment) =>
+          comment.id === commentId
+            ? { ...comment, likes: comment.likes + 1 }
+            : comment
+        ) || [],
+    }));
+  };
 
   const handleVideoPlay = (driverId: string) => {
-    setPlayingVideos(prev => ({ ...prev, [driverId]: true }))
-  }
+    console.log("Playing video for driver:", driverId);
+    setPlayingVideos((prev) => ({ ...prev, [driverId]: true }));
+    
+    // Initialize HLS.js for video playback after state update
+    setTimeout(() => {
+      if (typeof window !== 'undefined' && window.Hls) {
+        try {
+          console.log('Using HLS.js for video playback');
+          const videoElements = document.querySelectorAll(`video[data-driver-id="${driverId}"]`);
+          console.log('Found video elements:', videoElements.length);
+          
+          videoElements.forEach(videoEl => {
+            const videoSrc = videoEl.getAttribute('data-src') || "https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8";
+            console.log('Video source:', videoSrc);
+            
+            try {
+              const hls = new window.Hls();
+              hls.loadSource(videoSrc);
+              hls.attachMedia(videoEl as HTMLVideoElement);
+              hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
+                console.log('HLS manifest loaded, starting playback');
+                (videoEl as HTMLVideoElement).play().catch(e => console.error('Error playing video:', e));
+              });
+              hls.on(window.Hls.Events.ERROR, (event: any, data: any) => {
+                console.error('HLS error:', data);
+              });
+            } catch (e) {
+              console.error('Error initializing HLS:', e);
+            }
+          });
+        } catch (e) {
+          console.error('Error in HLS initialization:', e);
+        }
+      } else if (document.createElement('video').canPlayType('application/vnd.apple.mpegurl')) {
+        console.log('Using native HLS support');
+        // Browser supports HLS natively (Safari)
+        const videoElements = document.querySelectorAll(`video[data-driver-id="${driverId}"]`);
+        videoElements.forEach(videoEl => {
+          const videoSrc = videoEl.getAttribute('data-src') || "https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8";
+          if (videoSrc) {
+            (videoEl as HTMLVideoElement).src = videoSrc;
+            (videoEl as HTMLVideoElement).play().catch(e => console.error('Error playing video:', e));
+          }
+        });
+      } else {
+        console.error('HLS is not supported in this browser and HLS.js is not loaded');
+      }
+    }, 100); // Small delay to ensure DOM is updated
+  };
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <span className="text-2xl">🫏</span>
-    if (rank === 2) return <span className="text-2xl">💩</span>
-    if (rank === 3) return <span className="text-2xl">🐴</span>
-    return <span className="text-2xl font-bold text-black">#{rank}</span>
-  }
+    if (rank === 1) return <span className="text-2xl">🫏</span>;
+    if (rank === 2) return <span className="text-2xl">💩</span>;
+    if (rank === 3) return <span className="text-2xl">🐴</span>;
+    return <span className="text-2xl font-bold text-black">#{rank}</span>;
+  };
 
   const getRankBadge = (rank: number) => {
-    if (rank === 1) return "bg-yellow-500 text-black"
-    if (rank === 2) return "bg-yellow-400 text-black"
-    if (rank === 3) return "bg-yellow-300 text-black"
-    return "bg-black text-yellow-400"
-  }
+    if (rank === 1) return "bg-yellow-500 text-black";
+    if (rank === 2) return "bg-yellow-400 text-black";
+    if (rank === 3) return "bg-yellow-300 text-black";
+    return "bg-black text-yellow-400";
+  };
 
   if (loading) {
     return (
@@ -376,7 +564,7 @@ export default function LeaderboardPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -386,15 +574,20 @@ export default function LeaderboardPage() {
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-black mb-2">Error Loading Leaderboard</h2>
+            <h2 className="text-2xl font-bold text-black mb-2">
+              Error Loading Leaderboard
+            </h2>
             <p className="text-gray-600 mb-4">{error}</p>
-            <Button onClick={fetchWorstDrivers} className="bg-yellow-400 hover:bg-yellow-500 text-black">
+            <Button
+              onClick={fetchWorstDrivers}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black"
+            >
               Try Again
             </Button>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -402,19 +595,23 @@ export default function LeaderboardPage() {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
-
         {/* Stats Summary - Moved to top and made smaller */}
         <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3">
           <Card className="text-center border-yellow-400 rounded-xl">
             <CardContent className="p-3">
-              <div className="text-xl font-bold text-black">{worstDrivers.length}</div>
+              <div className="text-xl font-bold text-black">
+                {worstDrivers.length}
+              </div>
               <div className="text-gray-600 text-sm">Total Offenders</div>
             </CardContent>
           </Card>
           <Card className="text-center border-yellow-400 rounded-xl">
             <CardContent className="p-3">
               <div className="text-xl font-bold text-black">
-                {worstDrivers.reduce((sum, driver) => sum + driver.violations, 0)}
+                {worstDrivers.reduce(
+                  (sum, driver) => sum + driver.violations,
+                  0
+                )}
               </div>
               <div className="text-gray-600 text-sm">Total Violations</div>
             </CardContent>
@@ -435,20 +632,21 @@ export default function LeaderboardPage() {
           </Card>
         </div>
 
-
         {/* Top 3 Carousel */}
-        <CarouselSection 
-          drivers={worstDrivers.slice(0, 3)} 
-          getRankIcon={getRankIcon} 
-          onVideoSelect={setSelectedVideo} 
+        <CarouselSection
+          drivers={worstDrivers.slice(0, 3)}
+          getRankIcon={getRankIcon}
+          onVideoSelect={setSelectedVideo}
           onVideoPlay={handleVideoPlay}
           playingVideos={playingVideos}
         />
 
         {/* Full Leaderboard - Card Grid */}
         <div className="mb-8">
-          <h3 className="text-2xl font-bold text-center text-black mb-6">Complete Rankings</h3>
-          
+          <h3 className="text-2xl font-bold text-center text-black mb-6">
+            Complete Rankings
+          </h3>
+
           {/* Compact Filters */}
           <div className="mb-6">
             {/* Mobile Sort Options */}
@@ -507,7 +705,10 @@ export default function LeaderboardPage() {
                   </Select>
                 </div>
                 <div>
-                  <Select value={locationFilter} onValueChange={setLocationFilter}>
+                  <Select
+                    value={locationFilter}
+                    onValueChange={setLocationFilter}
+                  >
                     <SelectTrigger className="w-32 h-8 text-xs border-gray-300">
                       <SelectValue placeholder="Location" />
                     </SelectTrigger>
@@ -526,7 +727,9 @@ export default function LeaderboardPage() {
                       <SelectValue placeholder="Sort" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="violations">Most Violations</SelectItem>
+                      <SelectItem value="violations">
+                        Most Violations
+                      </SelectItem>
                       <SelectItem value="points">Donkey Points</SelectItem>
                       <SelectItem value="recent">Most Recent</SelectItem>
                     </SelectContent>
@@ -541,7 +744,9 @@ export default function LeaderboardPage() {
               <Card
                 key={driver.id}
                 className={`border-2 ${
-                  index < 3 ? "border-yellow-400 bg-yellow-50" : "border-gray-200 bg-white"
+                  index < 3
+                    ? "border-yellow-400 bg-yellow-50"
+                    : "border-gray-200 bg-white"
                 } shadow-md rounded-xl hover:shadow-lg transition-shadow`}
               >
                 {/* Video Section */}
@@ -556,13 +761,13 @@ export default function LeaderboardPage() {
                     />
                   ) : (
                     <>
-                      <img 
-                        src="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg" 
+                      <img
+                        src="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
                         alt="Video thumbnail"
                         className="absolute inset-0 w-full h-full object-cover rounded-t-xl"
                       />
                       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 rounded-t-xl"></div>
-                      <button 
+                      <button
                         onClick={() => handleVideoPlay(driver.id)}
                         className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-3 transition-colors"
                       >
@@ -570,19 +775,21 @@ export default function LeaderboardPage() {
                       </button>
                     </>
                   )}
-                  
+
                   {/* Rank Badge in top-left */}
                   <div className="absolute top-3 left-3 z-10">
-                    <Badge className={getRankBadge(driver.rank)} >#{driver.rank}</Badge>
+                    <Badge className={getRankBadge(driver.rank)}>
+                      #{driver.rank}
+                    </Badge>
                   </div>
-                  
+
                   {/* Donkey Points in top-right */}
                   <div className="absolute top-3 right-3 z-10">
                     <Badge className="bg-yellow-400 text-black px-2 py-1 text-xs font-bold">
                       {Math.abs(driver.points)} pts
                     </Badge>
                   </div>
-                  
+
                   {/* Location in bottom-right */}
                   <div className="absolute bottom-3 right-3 z-10">
                     <div className="bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center space-x-1">
@@ -595,7 +802,9 @@ export default function LeaderboardPage() {
                 {/* Stats below video */}
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-mono font-bold text-xs text-black">{driver.id}</h3>
+                    <h3 className="font-mono font-bold text-xs text-black">
+                      {driver.id}
+                    </h3>
                     <div className="flex items-center space-x-2">
                       <Link
                         href={`/driver/${driver.id}`}
@@ -619,7 +828,10 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Video Dialog */}
-      <Dialog open={!!selectedVideo} onOpenChange={(open) => !open && setSelectedVideo(null)}>
+      <Dialog
+        open={!!selectedVideo}
+        onOpenChange={(open) => !open && setSelectedVideo(null)}
+      >
         <DialogContent className="max-w-5xl h-[90vh] md:max-h-[90vh] overflow-hidden p-0 flex flex-col">
           {selectedVideo && (
             <>
@@ -627,9 +839,15 @@ export default function LeaderboardPage() {
                 <DialogTitle className="flex flex-col md:flex-row md:items-center md:justify-between pr-8 gap-2">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono font-bold">{selectedVideo.id}</span>
-                      <Badge className="bg-yellow-500 text-black">#{selectedVideo.rank}</Badge>
-                      <Badge className="bg-black text-yellow-400">{Math.abs(selectedVideo.points)} pts</Badge>
+                      <span className="font-mono font-bold">
+                        {selectedVideo.id}
+                      </span>
+                      <Badge className="bg-yellow-500 text-black">
+                        #{selectedVideo.rank}
+                      </Badge>
+                      <Badge className="bg-black text-yellow-400">
+                        {Math.abs(selectedVideo.points)} pts
+                      </Badge>
                     </div>
                     <div className="flex items-center space-x-1 text-sm text-gray-600">
                       <MapPin className="h-4 w-4" />
@@ -638,13 +856,14 @@ export default function LeaderboardPage() {
                   </div>
                 </DialogTitle>
               </DialogHeader>
-              
+
               <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 p-4 md:p-6 overflow-hidden">
                 {/* Video Section */}
                 <div className="lg:col-span-2 h-48 md:h-auto">
                   <div className="bg-black rounded-lg h-full md:h-96 flex items-center justify-center relative overflow-hidden">
                     <video
-                      src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
+                      data-driver-id={selectedVideo.id}
+                      data-src="https://stream.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00.m3u8"
                       poster="https://image.mux.com/gIn8c1l1yhvGyCRXiNSF0267xnsVs8lFc00sCTttrFui00/thumbnail.jpg"
                       className="absolute inset-0 w-full h-full object-cover"
                       controls
@@ -658,12 +877,18 @@ export default function LeaderboardPage() {
                     {/* Video Info */}
                     <div className="bg-gray-50 p-4 rounded-lg mb-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-lg">Violation Details</h3>
-                        <Badge className="bg-red-500 text-white">{selectedVideo.violations} Violations</Badge>
+                        <h3 className="font-semibold text-lg">
+                          Violation Details
+                        </h3>
+                        <Badge className="bg-red-500 text-white">
+                          {selectedVideo.violations} Violations
+                        </Badge>
                       </div>
                       <p className="text-gray-600">
-                        This driver has been reported multiple times for traffic violations including speeding, 
-                        red light violations, and reckless driving. Latest incident captured on {new Date().toLocaleDateString()}.
+                        This driver has been reported multiple times for traffic
+                        violations including speeding, red light violations, and
+                        reckless driving. Latest incident captured on{" "}
+                        {new Date().toLocaleDateString()}.
                       </p>
                     </div>
 
@@ -671,20 +896,33 @@ export default function LeaderboardPage() {
                     <div className="mb-4">
                       <div className="flex items-center space-x-2 mb-4">
                         <MessageCircle className="h-5 w-5" />
-                        <h3 className="font-semibold">Comments ({comments[selectedVideo.id]?.length || 0})</h3>
+                        <h3 className="font-semibold">
+                          Comments ({comments[selectedVideo.id]?.length || 0})
+                        </h3>
                       </div>
-                      
+
                       {/* Comments List */}
                       <div className="space-y-3">
                         {comments[selectedVideo.id]?.map((comment) => (
-                          <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
+                          <div
+                            key={comment.id}
+                            className="bg-gray-50 p-3 rounded-lg"
+                          >
                             <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium text-sm text-gray-800">{comment.author}</span>
-                              <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                              <span className="font-medium text-sm text-gray-800">
+                                {comment.author}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {comment.timestamp}
+                              </span>
                             </div>
-                            <p className="text-sm text-gray-700 mb-2">{comment.comment}</p>
-                            <button 
-                              onClick={() => handleLikeComment(selectedVideo.id, comment.id)}
+                            <p className="text-sm text-gray-700 mb-2">
+                              {comment.comment}
+                            </p>
+                            <button
+                              onClick={() =>
+                                handleLikeComment(selectedVideo.id, comment.id)
+                              }
                               className="flex items-center space-x-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
                             >
                               <Heart className="h-3 w-3" />
@@ -709,10 +947,12 @@ export default function LeaderboardPage() {
                         placeholder="Add a comment..."
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && handleAddComment()
+                        }
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
                       />
-                      <Button 
+                      <Button
                         onClick={handleAddComment}
                         size="sm"
                         className="bg-yellow-400 hover:bg-yellow-500 text-black px-3"
@@ -729,5 +969,5 @@ export default function LeaderboardPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
