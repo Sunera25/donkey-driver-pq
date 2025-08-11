@@ -94,7 +94,7 @@ export function Navbar() {
               >
                 <Camera className="h-5 w-5" />
               </Button>
-              
+
               <Button
                 variant="ghost"
                 className="flex items-center space-x-2 hover:text-yellow-300 text-yellow-400 font-medium"
@@ -136,51 +136,50 @@ export function Navbar() {
       {/* Mobile Navbar - Fixed at Bottom */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-t border-yellow-400 w-full">
         <div className="px-2 pb-2 pt-3">
-          <div className="flex items-center justify-around w-full relative">
+          <div className="flex items-center justify-between w-full relative">
             {/* Home */}
-            <Link href="/" className="flex flex-col items-center flex-1 py-2">
+            <Link
+              href="/"
+              className="flex flex-col items-center flex-1 max-w-[64px] py-2"
+            >
               <Home className="h-5 w-5" />
               <span className="text-xs mt-1 font-medium">Home</span>
             </Link>
-
             {/* Worst */}
             <Link
               href="/leaderboard"
-              className="flex flex-col items-center flex-1 py-2"
+              className="flex flex-col items-center flex-1 max-w-[64px] py-2"
             >
               <TrendingDown className="h-5 w-5" />
               <span className="text-xs mt-1 font-medium">Worst</span>
             </Link>
-
             {/* Spacer for Camera */}
-            <div className="flex-1" />
-
+            <div className="flex-1 max-w-[72px]" />{" "}
+            {/* same width as camera button */}
             {/* Rules */}
             <Link
               href="/driving-rules"
-              className="flex flex-col items-center flex-1 py-2"
+              className="flex flex-col items-center flex-1 max-w-[64px] py-2"
             >
               <BookOpen className="h-5 w-5" />
               <span className="text-xs mt-1 font-medium">Rules</span>
             </Link>
-
             {/* Settings */}
             <Button
               variant="ghost"
-              className="flex flex-col items-center flex-1 py-2 text-yellow-400 hover:text-yellow-300"
+              className="flex flex-col items-center flex-1 max-w-[64px] py-2 text-yellow-400 hover:text-yellow-300"
             >
               <Settings className="h-5 w-5" />
               <span className="text-xs mt-1 font-medium">Settings</span>
             </Button>
-
             {/* Floating Camera - Centered */}
             <div className="absolute left-1/2 -translate-x-1/2 -top-8">
               <Button
                 onClick={handleCameraClick}
                 disabled={isCapturing}
                 className="bg-yellow-400 hover:bg-yellow-500 active:scale-95 
-                     transition-all duration-200 text-black font-semibold 
-                     rounded-full shadow-xl hover:shadow-2xl border-4 border-black"
+                transition-all duration-200 text-black font-semibold 
+                rounded-full shadow-xl hover:shadow-2xl border-4 border-black"
                 style={{ width: "72px", height: "72px" }}
               >
                 <Camera className="h-8 w-8" />
