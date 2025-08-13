@@ -23,7 +23,7 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-12 text-center max-w-full">
+      <section className="container mx-auto px-4 py-10 md:py-20 text-center max-w-full">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-6xl font-bold text-black mb-6">
             Report Reckless Drivers

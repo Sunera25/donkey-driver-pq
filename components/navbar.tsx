@@ -4,7 +4,7 @@ import type React from "react";
 
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Camera, Home, TrendingDown, BookOpen, Settings } from "lucide-react";
+import { Camera, Home, TrendingDown, BookOpen, BarChart } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -43,7 +43,7 @@ export function Navbar() {
     <>
       {/* Desktop Navbar - Top */}
       <nav className="hidden md:block bg-black text-yellow-400 shadow-lg sticky top-0 z-50">
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-10 py-1">
           <div className="flex items-center justify-between h-16">
             {/* Left Side - Logo */}
             <Link href="/" className="flex items-center space-x-3">
@@ -82,6 +82,13 @@ export function Navbar() {
                 <BookOpen className="h-5 w-5" />
                 <span>Driving Rules</span>
               </Link>
+              <Link
+                href="/stats"
+                className="flex items-center space-x-2 hover:text-yellow-300 transition-colors font-medium"
+              >
+                <BarChart className="h-5 w-5" />
+                <span>Stats</span>
+              </Link>
             </div>
 
             {/* Right Side - Camera and Settings */}
@@ -93,14 +100,6 @@ export function Navbar() {
                 size="icon"
               >
                 <Camera className="h-5 w-5" />
-              </Button>
-              
-              <Button
-                variant="ghost"
-                className="flex items-center space-x-2 hover:text-yellow-300 text-yellow-400 font-medium"
-              >
-                <Settings className="h-5 w-5" />
-                <span>Settings</span>
               </Button>
 
               {/* Hidden camera input */}
@@ -118,7 +117,7 @@ export function Navbar() {
       </nav>
       {/* Mobile Header - Fixed at Top */}
       <div className="md:hidden fixed top-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-b border-yellow-400 w-full">
-        <div className="flex items-center justify-center py-3">
+        <div className="flex items-center justify-center py-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full overflow-hidden bg-yellow-400 p-0.5">
               <Image
@@ -164,14 +163,14 @@ export function Navbar() {
               <span className="text-xs mt-1 font-medium">Rules</span>
             </Link>
 
-            {/* Settings */}
-            <Button
-              variant="ghost"
-              className="flex flex-col items-center flex-1 py-2 text-yellow-400 hover:text-yellow-300"
+            {/* Stats */}
+            <Link
+              href="/stats"
+              className="flex flex-col items-center flex-1 py-2"
             >
-              <Settings className="h-5 w-5" />
-              <span className="text-xs mt-1 font-medium">Settings</span>
-            </Button>
+              <BarChart className="h-5 w-5" />
+              <span className="text-xs mt-1 font-medium">Stats</span>
+            </Link>
 
             {/* Floating Camera - Centered */}
             <div className="absolute left-1/2 -translate-x-1/2 -top-8">
