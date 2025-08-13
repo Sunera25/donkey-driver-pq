@@ -28,6 +28,7 @@ import {
   Video,
   ImageIcon,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { violationAPI } from "@/lib/api";
@@ -37,6 +38,7 @@ export default function UploadPage() {
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<"photo" | "video" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     violationType: "",
     vehicleNumber: "",
@@ -46,6 +48,9 @@ export default function UploadPage() {
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Maximum file size for videos (30MB in bytes)
+  const MAX_VIDEO_SIZE = 30 * 1024 * 1024; // 30MB
 
   // Check for pre-captured media from navbar
   useEffect(() => {
@@ -64,7 +69,22 @@ export default function UploadPage() {
           const file = new File([blob], capturedMediaName || "captured-media", {
             type: capturedMediaType,
           });
-          setMediaFile(file);
+
+          // Validate file size for videos
+          if (file.type.startsWith("video/") && file.size > MAX_VIDEO_SIZE) {
+            setFileError(
+              `Video file is too large. Maximum size allowed is 30MB. Your file is ${(
+                file.size /
+                (1024 * 1024)
+              ).toFixed(1)}MB.`
+            );
+            setMediaFile(null);
+            setMediaPreview(null);
+            setMediaType(null);
+          } else {
+            setMediaFile(file);
+            setFileError(null);
+          }
         });
 
       // Clear session storage
@@ -74,9 +94,28 @@ export default function UploadPage() {
     }
   }, []);
 
+  const validateFileSize = (file: File): boolean => {
+    if (file.type.startsWith("video/") && file.size > MAX_VIDEO_SIZE) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      setFileError(
+        `Video file is too large. Maximum size allowed is 30MB. Your file is ${fileSizeMB}MB.`
+      );
+      return false;
+    }
+    setFileError(null);
+    return true;
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validate file size
+      if (!validateFileSize(file)) {
+        // Clear the input value so the same file can be selected again
+        event.target.value = "";
+        return;
+      }
+
       setMediaFile(file);
       const url = URL.createObjectURL(file);
       setMediaPreview(url);
@@ -92,8 +131,28 @@ export default function UploadPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(1)} KB`;
+    }
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    // Double-check file size before submission
+    if (
+      mediaFile &&
+      mediaFile.type.startsWith("video/") &&
+      mediaFile.size > MAX_VIDEO_SIZE
+    ) {
+      setFileError(
+        `Video file is too large. Please select a file smaller than 30MB.`
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -175,6 +234,7 @@ export default function UploadPage() {
       setMediaFile(null);
       setMediaPreview(null);
       setMediaType(null);
+      setFileError(null);
       setFormData({
         violationType: "",
         vehicleNumber: "",
@@ -238,6 +298,10 @@ export default function UploadPage() {
                     </Button>
                   </div>
 
+                  <div className="text-sm text-gray-600">
+                    Maximum video file size: 30MB
+                  </div>
+
                   {/* Hidden file inputs */}
                   <input
                     ref={fileInputRef}
@@ -255,18 +319,37 @@ export default function UploadPage() {
                     className="hidden"
                   />
 
+                  {/* File Error Display */}
+                  {fileError && (
+                    <div className="border-2 border-red-400 bg-red-50 rounded-lg p-3 md:p-4">
+                      <div className="flex items-start space-x-2">
+                        <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                        <div className="text-red-700 text-sm md:text-base">
+                          {fileError}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Media Preview */}
-                  {mediaPreview && (
+                  {mediaPreview && !fileError && (
                     <div className="border-2 border-yellow-400 rounded-lg p-3 md:p-4 mt-2">
-                      <div className="flex items-center space-x-2 mb-2">
-                        {mediaType === "video" ? (
-                          <Video className="h-4 w-4 md:h-5 md:w-5 text-black" />
-                        ) : (
-                          <ImageIcon className="h-4 w-4 md:h-5 md:w-5 text-black" />
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          {mediaType === "video" ? (
+                            <Video className="h-4 w-4 md:h-5 md:w-5 text-black" />
+                          ) : (
+                            <ImageIcon className="h-4 w-4 md:h-5 md:w-5 text-black" />
+                          )}
+                          <span className="font-medium text-black text-sm md:text-base">
+                            {mediaType === "video" ? "Video" : "Photo"} Preview
+                          </span>
+                        </div>
+                        {mediaFile && (
+                          <span className="text-xs md:text-sm text-gray-500">
+                            {formatFileSize(mediaFile.size)}
+                          </span>
                         )}
-                        <span className="font-medium text-black text-sm md:text-base">
-                          {mediaType === "video" ? "Video" : "Photo"} Preview
-                        </span>
                       </div>
                       {mediaType === "video" ? (
                         <video
@@ -359,13 +442,6 @@ export default function UploadPage() {
                         placeholder="Enter location or address"
                         className="border-black focus:border-yellow-400 h-10 md:h-11 rounded-lg"
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="border-black text-black hover:bg-black hover:text-yellow-400 active:bg-black/90 active:text-yellow-400 bg-transparent h-10 md:h-11 w-10 md:w-11 p-0 rounded-lg"
-                      >
-                        <MapPin className="h-4 w-4 md:h-5 md:w-5" />
-                      </Button>
                     </div>
                   </div>
 
@@ -410,7 +486,10 @@ export default function UploadPage() {
                 <Button
                   type="submit"
                   disabled={
-                    isSubmitting || !mediaFile || !formData.violationType
+                    isSubmitting ||
+                    !mediaFile ||
+                    !formData.violationType ||
+                    fileError !== null
                   }
                   className="w-full bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-black font-semibold py-2.5 md:py-3 text-base md:text-lg rounded-xl mt-2 md:mt-4 h-12 md:h-14 touch-manipulation transition-colors duration-200"
                 >
