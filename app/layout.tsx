@@ -6,7 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Donkey Watch - Traffic Violation Reporting System",
+  title: "Donkey Driver - Traffic Violation Reporting System",
   description: "Report reckless drivers and help make Sri Lankan roads safer",
   generator: "v0.dev",
 };
