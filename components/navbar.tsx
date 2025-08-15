@@ -46,15 +46,17 @@ export function Navbar() {
         <div className="container mx-auto px-10 py-1">
           <div className="flex items-center justify-between h-16">
             {/* Left Side - Logo */}
-            <Link href="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-yellow-400 p-0.5">
-                <Image
-                  src="/images/donkey-logo.jpeg"
-                  alt="Donkey Driver Logo"
-                  width={40}
-                  height={40}
-                  className="w-full h-full object-cover rounded-full"
-                />
+            <Link href="/" className="flex items-center space-x-6">
+              <div className="relative w-10 h-10">
+                <div className="absolute inset-0 rounded-full overflow-hidden bg-yellow-400 p-0.5 scale-150 z-10">
+                  <Image
+                    src="/images/donkey-logo.jpeg"
+                    alt="Donkey Driver Logo"
+                    width={60}
+                    height={60}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
               </div>
               <h1 className="text-2xl font-bold">Donkey Driver</h1>
             </Link>
@@ -118,15 +120,17 @@ export function Navbar() {
       {/* Mobile Header - Fixed at Top */}
       <div className="md:hidden fixed top-0 left-0 right-0 bg-black text-yellow-400 shadow-lg z-50 border-b border-yellow-400 w-full">
         <div className="flex items-center justify-center py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-yellow-400 p-0.5">
-              <Image
-                src="/images/donkey-logo.jpeg"
-                alt="Donkey Driver Logo"
-                width={40}
-                height={40}
-                className="w-full h-full object-cover rounded-full"
-              />
+          <div className="flex items-center gap-6">
+            <div className="relative w-10 h-10">
+              <div className="absolute inset-0 rounded-full overflow-hidden bg-yellow-400 p-0.5 scale-150 z-10">
+                <Image
+                  src="/images/donkey-logo.jpeg"
+                  alt="Donkey Driver Logo"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </div>
             </div>
             <h1 className="text-xl font-bold">Donkey Driver</h1>
           </div>
