@@ -99,7 +99,7 @@ export function Navbar() {
                 className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-full transition-all hover:scale-105"
                 size="icon"
               >
-                <Camera className="h-5 w-5" />
+                <Camera style={{ width: "24px", height: "24px" }} />
               </Button>
 
               {/* Hidden camera input */}
@@ -182,7 +182,7 @@ export function Navbar() {
                      rounded-full shadow-xl hover:shadow-2xl border-4 border-black"
                 style={{ width: "72px", height: "72px" }}
               >
-                <Camera className="h-8 w-8" />
+                <Camera style={{ width: "36px", height: "36px" }} />
               </Button>
             </div>
           </div>

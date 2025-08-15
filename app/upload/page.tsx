@@ -29,14 +29,20 @@ import {
   ImageIcon,
   Loader2,
   AlertCircle,
+  X,
 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { violationAPI } from "@/lib/api";
 
+interface MediaItem {
+  id: string;
+  file: File;
+  preview: string;
+  type: "photo" | "video";
+}
+
 export default function UploadPage() {
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
-  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
-  const [mediaType, setMediaType] = useState<"photo" | "video" | null>(null);
+  const [mediaFiles, setMediaFiles] = useState<MediaItem[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -51,6 +57,7 @@ export default function UploadPage() {
 
   // Maximum file size for videos (30MB in bytes)
   const MAX_VIDEO_SIZE = 30 * 1024 * 1024; // 30MB
+  const MAX_FILES = 5; // maximum no of files allowed
 
   // Check for pre-captured media from navbar
   useEffect(() => {
@@ -59,9 +66,6 @@ export default function UploadPage() {
     const capturedMediaName = sessionStorage.getItem("capturedMediaName");
 
     if (capturedMedia && capturedMediaType) {
-      setMediaPreview(capturedMedia);
-      setMediaType(capturedMediaType === "video" ? "video" : "photo");
-
       // Convert data URL back to File object
       fetch(capturedMedia)
         .then((res) => res.blob())
@@ -78,11 +82,14 @@ export default function UploadPage() {
                 (1024 * 1024)
               ).toFixed(1)}MB.`
             );
-            setMediaFile(null);
-            setMediaPreview(null);
-            setMediaType(null);
           } else {
-            setMediaFile(file);
+            const mediaItem: MediaItem = {
+              id: Date.now().toString(),
+              file,
+              preview: capturedMedia,
+              type: file.type.startsWith("video/") ? "video" : "photo",
+            };
+            setMediaFiles([mediaItem]);
             setFileError(null);
           }
         });
@@ -106,25 +113,64 @@ export default function UploadPage() {
     return true;
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validate file size
-      if (!validateFileSize(file)) {
-        // Clear the input value so the same file can be selected again
-        event.target.value = "";
+  const addMediaFiles = (files: FileList) => {
+    const newMediaItems: MediaItem[] = [];
+
+    Array.from(files).forEach((file) => {
+      // Check file count limit
+      if (mediaFiles.length + newMediaItems.length >= MAX_FILES) {
+        setFileError(`Maximum ${MAX_FILES} files allowed.`);
         return;
       }
 
-      setMediaFile(file);
-      const url = URL.createObjectURL(file);
-      setMediaPreview(url);
-      setMediaType(file.type.startsWith("video/") ? "video" : "photo");
+      // Validate file size
+      if (!validateFileSize(file)) {
+        return;
+      }
+
+      const mediaItem: MediaItem = {
+        id: `${Date.now()}-${Math.random()}`,
+        file,
+        preview: URL.createObjectURL(file),
+        type: file.type.startsWith("video/") ? "video" : "photo",
+      };
+
+      newMediaItems.push(mediaItem);
+    });
+
+    if (newMediaItems.length > 0) {
+      setMediaFiles((prev) => [...prev, ...newMediaItems]);
+      setFileError(null);
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      addMediaFiles(files);
+      event.target.value = "";
     }
   };
 
   const handleCameraCapture = () => {
     cameraInputRef.current?.click();
+  };
+
+  const removeMediaItem = (id: string) => {
+    setMediaFiles((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+      // Revoke object URL to prevent memory leaks
+      const itemToRemove = prev.find((item) => item.id === id);
+      if (itemToRemove) {
+        URL.revokeObjectURL(itemToRemove.preview);
+      }
+      return updated;
+    });
+
+    // Clear error if removing files resolves the issue
+    if (fileError && mediaFiles.length <= MAX_FILES) {
+      setFileError(null);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -142,13 +188,14 @@ export default function UploadPage() {
     event.preventDefault();
 
     // Double-check file size before submission
-    if (
-      mediaFile &&
-      mediaFile.type.startsWith("video/") &&
-      mediaFile.size > MAX_VIDEO_SIZE
-    ) {
+    const invalidFiles = mediaFiles.filter(
+      (item) =>
+        item.file.type.startsWith("video/") && item.file.size > MAX_VIDEO_SIZE
+    );
+
+    if (invalidFiles.length > 0) {
       setFileError(
-        `Video file is too large. Please select a file smaller than 30MB.`
+        `${invalidFiles.length} video file(s) are too large. Please remove them or select files smaller than 30MB.`
       );
       return;
     }
@@ -189,7 +236,7 @@ export default function UploadPage() {
         location: formData.location,
         description: combinedDescription, // Use the combined description
         reporter: formData.reporterContact || "Anonymous",
-        mediaType: mediaType || "photo",
+        mediaType: mediaFiles.length > 0 ? mediaFiles[0].type : "photo",
         timestamp: new Date().toISOString(),
         status: "pending" as const,
       };
@@ -198,12 +245,14 @@ export default function UploadPage() {
       const result = await violationAPI.submitReport(reportData);
 
       // If we have a video file, also submit to the external video analysis API
-      if (mediaFile && mediaType === "video") {
+      const videoFiles = mediaFiles.filter((item) => item.type === "video");
+
+      for (const videoItem of videoFiles) {
         try {
           // Create FormData for multipart/form-data request
           const formData = new FormData();
-          formData.append("video_file", mediaFile);
-          formData.append("user_description", combinedDescription); // Use the combined description with violation type
+          formData.append("video_file", videoItem.file);
+          formData.append("user_description", combinedDescription);
 
           // Make the request to the external API
           const response = await fetch(
@@ -231,9 +280,8 @@ export default function UploadPage() {
       );
 
       // Reset form
-      setMediaFile(null);
-      setMediaPreview(null);
-      setMediaType(null);
+      mediaFiles.forEach((item) => URL.revokeObjectURL(item.preview));
+      setMediaFiles([]);
       setFileError(null);
       setFormData({
         violationType: "",
@@ -272,14 +320,15 @@ export default function UploadPage() {
                 {/* Media Capture Section */}
                 <div className="space-y-3 md:space-y-4">
                   <Label className="text-base md:text-lg font-semibold text-black">
-                    Evidence (Photo/Video)
+                    Evidence (Photo/Video) - {mediaFiles.length}/{MAX_FILES}
                   </Label>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                     <Button
                       type="button"
                       onClick={handleCameraCapture}
-                      className="bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-black h-16 md:h-20 flex-col space-y-1 md:space-y-2 rounded-xl touch-manipulation"
+                      disabled={mediaFiles.length >= MAX_FILES}
+                      className="bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 text-black h-16 md:h-20 flex-col space-y-1 md:space-y-2 rounded-xl touch-manipulation disabled:opacity-50"
                     >
                       <Camera className="h-6 w-6 md:h-8 md:w-8" />
                       <span className="text-sm md:text-base">
@@ -290,16 +339,17 @@ export default function UploadPage() {
                     <Button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
+                      disabled={mediaFiles.length >= MAX_FILES}
                       variant="outline"
-                      className="border-black text-black hover:bg-black hover:text-yellow-400 active:bg-black/90 h-16 md:h-20 flex-col space-y-1 md:space-y-2 rounded-xl touch-manipulation"
+                      className="border-black text-black hover:bg-black hover:text-yellow-400 active:bg-black/90 h-16 md:h-20 flex-col space-y-1 md:space-y-2 rounded-xl touch-manipulation disabled:opacity-50"
                     >
                       <Upload className="h-6 w-6 md:h-8 md:w-8" />
-                      <span className="text-sm md:text-base">Upload File</span>
+                      <span className="text-sm md:text-base">Upload Files</span>
                     </Button>
                   </div>
 
                   <div className="text-sm text-gray-600">
-                    Maximum video file size: 30MB
+                    Maximum video file size: 30MB • Maximum {MAX_FILES} files
                   </div>
 
                   {/* Hidden file inputs */}
@@ -307,6 +357,7 @@ export default function UploadPage() {
                     ref={fileInputRef}
                     type="file"
                     accept="image/*,video/*"
+                    multiple
                     onChange={handleFileUpload}
                     className="hidden"
                   />
@@ -332,38 +383,61 @@ export default function UploadPage() {
                   )}
 
                   {/* Media Preview */}
-                  {mediaPreview && !fileError && (
-                    <div className="border-2 border-yellow-400 rounded-lg p-3 md:p-4 mt-2">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          {mediaType === "video" ? (
-                            <Video className="h-4 w-4 md:h-5 md:w-5 text-black" />
-                          ) : (
-                            <ImageIcon className="h-4 w-4 md:h-5 md:w-5 text-black" />
-                          )}
-                          <span className="font-medium text-black text-sm md:text-base">
-                            {mediaType === "video" ? "Video" : "Photo"} Preview
-                          </span>
-                        </div>
-                        {mediaFile && (
-                          <span className="text-xs md:text-sm text-gray-500">
-                            {formatFileSize(mediaFile.size)}
-                          </span>
-                        )}
+                  {mediaFiles.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="text-sm font-medium text-black">
+                        Uploaded Files ({mediaFiles.length})
                       </div>
-                      {mediaType === "video" ? (
-                        <video
-                          src={mediaPreview}
-                          controls
-                          className="w-full max-h-48 md:max-h-64 rounded-lg"
-                        />
-                      ) : (
-                        <img
-                          src={mediaPreview || "/placeholder.svg"}
-                          alt="Evidence preview"
-                          className="w-full max-h-48 md:max-h-64 object-cover rounded-lg"
-                        />
-                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {mediaFiles.map((mediaItem) => (
+                          <div
+                            key={mediaItem.id}
+                            className="border-2 border-yellow-400 rounded-lg p-3 relative"
+                          >
+                            {/* Remove button */}
+                            <Button
+                              type="button"
+                              onClick={() => removeMediaItem(mediaItem.id)}
+                              className="absolute top-1 right-1 z-10 h-8 w-8 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full"
+                              size="sm"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+
+                            <div className="flex items-center justify-between mb-2 pr-8">
+                              <div className="flex items-center space-x-2">
+                                {mediaItem.type === "video" ? (
+                                  <Video className="h-4 w-4 text-black" />
+                                ) : (
+                                  <ImageIcon className="h-4 w-4 text-black" />
+                                )}
+                                <span className="font-medium text-black text-sm">
+                                  {mediaItem.type === "video"
+                                    ? "Video"
+                                    : "Photo"}
+                                </span>
+                              </div>
+                              <span className="text-xs text-gray-500">
+                                {formatFileSize(mediaItem.file.size)}
+                              </span>
+                            </div>
+
+                            {mediaItem.type === "video" ? (
+                              <video
+                                src={mediaItem.preview}
+                                controls
+                                className="w-full max-h-32 md:max-h-40 rounded-lg"
+                              />
+                            ) : (
+                              <img
+                                src={mediaItem.preview}
+                                alt="Evidence preview"
+                                className="w-full max-h-32 md:max-h-40 object-cover rounded-lg"
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -487,7 +561,7 @@ export default function UploadPage() {
                   type="submit"
                   disabled={
                     isSubmitting ||
-                    !mediaFile ||
+                    mediaFiles.length === 0 ||
                     !formData.violationType ||
                     fileError !== null
                   }
@@ -499,7 +573,7 @@ export default function UploadPage() {
                       <span>Submitting...</span>
                     </>
                   ) : (
-                    <span>Submit Report</span>
+                    <span>Submit Report ({mediaFiles.length} files)</span>
                   )}
                 </Button>
 
