@@ -351,9 +351,8 @@ export default function LeaderboardPage() {
       <Navbar />
 
       <div className="container mx-auto px-4 py-8">
-
-        {/* Stats Summary - Moved to top and made smaller */}
-        <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Stats Summary - Moved to Stats page */}
+        {/* <div className="mb-8 grid grid-cols-2 md:grid-cols-4 gap-3">
           <Card className="text-center border-yellow-400 rounded-xl">
             <CardContent className="p-3">
               <div className="text-xl font-bold text-black">{worstDrivers.length}</div>
@@ -382,16 +381,21 @@ export default function LeaderboardPage() {
               <div className="text-gray-600 text-sm">Repeat Rate</div>
             </CardContent>
           </Card>
-        </div>
-
+        </div> */}
 
         {/* Top 3 Carousel */}
-        <CarouselSection drivers={worstDrivers.slice(0, 3)} getRankIcon={getRankIcon} onVideoSelect={setSelectedVideo} />
+        <CarouselSection
+          drivers={worstDrivers.slice(0, 3)}
+          getRankIcon={getRankIcon}
+          onVideoSelect={setSelectedVideo}
+        />
 
         {/* Full Leaderboard - Card Grid */}
         <div className="mb-8">
-          <h3 className="text-2xl font-bold text-center text-black mb-6">Complete Rankings</h3>
-          
+          <h3 className="text-2xl font-bold text-center text-black mb-6">
+            Complete Rankings
+          </h3>
+
           {/* Compact Filters */}
           <div className="mb-6">
             {/* Mobile Sort Options */}
@@ -443,14 +447,17 @@ export default function LeaderboardPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Time</SelectItem>
-                      <SelectItem value="month">This Month</SelectItem>
                       <SelectItem value="week">This Week</SelectItem>
+                      <SelectItem value="month">This Month</SelectItem>
                       <SelectItem value="year">This Year</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Select value={locationFilter} onValueChange={setLocationFilter}>
+                  <Select
+                    value={locationFilter}
+                    onValueChange={setLocationFilter}
+                  >
                     <SelectTrigger className="w-32 h-8 text-xs border-gray-300">
                       <SelectValue placeholder="Location" />
                     </SelectTrigger>
@@ -469,7 +476,9 @@ export default function LeaderboardPage() {
                       <SelectValue placeholder="Sort" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="violations">Most Violations</SelectItem>
+                      <SelectItem value="violations">
+                        Most Violations
+                      </SelectItem>
                       <SelectItem value="points">Donkey Points</SelectItem>
                       <SelectItem value="recent">Most Recent</SelectItem>
                     </SelectContent>
@@ -484,7 +493,9 @@ export default function LeaderboardPage() {
               <Card
                 key={driver.id}
                 className={`border-2 ${
-                  index < 3 ? "border-yellow-400 bg-yellow-50" : "border-gray-200 bg-white"
+                  index < 3
+                    ? "border-yellow-400 bg-yellow-50"
+                    : "border-gray-200 bg-white"
                 } shadow-md rounded-xl hover:shadow-lg transition-shadow`}
               >
                 {/* Video Section */}
@@ -494,19 +505,21 @@ export default function LeaderboardPage() {
                   <button className="relative z-10 bg-yellow-400 hover:bg-yellow-500 rounded-full p-3 transition-colors">
                     <Play className="h-6 w-6 text-black fill-black" />
                   </button>
-                  
+
                   {/* Rank Badge in top-left */}
                   <div className="absolute top-3 left-3 z-10">
-                    <Badge className={getRankBadge(driver.rank)} >#{driver.rank}</Badge>
+                    <Badge className={getRankBadge(driver.rank)}>
+                      #{driver.rank}
+                    </Badge>
                   </div>
-                  
+
                   {/* Donkey Points in top-right */}
                   <div className="absolute top-3 right-3 z-10">
                     <Badge className="bg-yellow-400 text-black px-2 py-1 text-xs font-bold">
                       {Math.abs(driver.points)} pts
                     </Badge>
                   </div>
-                  
+
                   {/* Location in bottom-right */}
                   <div className="absolute bottom-3 right-3 z-10">
                     <div className="bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center space-x-1">
@@ -519,7 +532,9 @@ export default function LeaderboardPage() {
                 {/* Stats below video */}
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-mono font-bold text-xs text-black">{driver.id}</h3>
+                    <h3 className="font-mono font-bold text-xs text-black">
+                      {driver.id}
+                    </h3>
                     <div className="flex items-center space-x-2">
                       <Link
                         href={`/driver/${driver.id}`}
@@ -543,7 +558,10 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Video Dialog */}
-      <Dialog open={!!selectedVideo} onOpenChange={(open) => !open && setSelectedVideo(null)}>
+      <Dialog
+        open={!!selectedVideo}
+        onOpenChange={(open) => !open && setSelectedVideo(null)}
+      >
         <DialogContent className="max-w-5xl h-[90vh] md:max-h-[90vh] overflow-hidden p-0 flex flex-col">
           {selectedVideo && (
             <>
@@ -551,9 +569,15 @@ export default function LeaderboardPage() {
                 <DialogTitle className="flex flex-col md:flex-row md:items-center md:justify-between pr-8 gap-2">
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2">
-                      <span className="font-mono font-bold">{selectedVideo.id}</span>
-                      <Badge className="bg-yellow-500 text-black">#{selectedVideo.rank}</Badge>
-                      <Badge className="bg-black text-yellow-400">{Math.abs(selectedVideo.points)} pts</Badge>
+                      <span className="font-mono font-bold">
+                        {selectedVideo.id}
+                      </span>
+                      <Badge className="bg-yellow-500 text-black">
+                        #{selectedVideo.rank}
+                      </Badge>
+                      <Badge className="bg-black text-yellow-400">
+                        {Math.abs(selectedVideo.points)} pts
+                      </Badge>
                     </div>
                     <div className="flex items-center space-x-1 text-sm text-gray-600">
                       <MapPin className="h-4 w-4" />
@@ -562,7 +586,7 @@ export default function LeaderboardPage() {
                   </div>
                 </DialogTitle>
               </DialogHeader>
-              
+
               <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 p-4 md:p-6 overflow-hidden">
                 {/* Video Section */}
                 <div className="lg:col-span-2 h-48 md:h-auto">
@@ -579,12 +603,18 @@ export default function LeaderboardPage() {
                     {/* Video Info */}
                     <div className="bg-gray-50 p-4 rounded-lg mb-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-lg">Violation Details</h3>
-                        <Badge className="bg-red-500 text-white">{selectedVideo.violations} Violations</Badge>
+                        <h3 className="font-semibold text-lg">
+                          Violation Details
+                        </h3>
+                        <Badge className="bg-red-500 text-white">
+                          {selectedVideo.violations} Violations
+                        </Badge>
                       </div>
                       <p className="text-gray-600">
-                        This driver has been reported multiple times for traffic violations including speeding, 
-                        red light violations, and reckless driving. Latest incident captured on {new Date().toLocaleDateString()}.
+                        This driver has been reported multiple times for traffic
+                        violations including speeding, red light violations, and
+                        reckless driving. Latest incident captured on{" "}
+                        {new Date().toLocaleDateString()}.
                       </p>
                     </div>
 
@@ -592,20 +622,33 @@ export default function LeaderboardPage() {
                     <div className="mb-4">
                       <div className="flex items-center space-x-2 mb-4">
                         <MessageCircle className="h-5 w-5" />
-                        <h3 className="font-semibold">Comments ({comments[selectedVideo.id]?.length || 0})</h3>
+                        <h3 className="font-semibold">
+                          Comments ({comments[selectedVideo.id]?.length || 0})
+                        </h3>
                       </div>
-                      
+
                       {/* Comments List */}
                       <div className="space-y-3">
                         {comments[selectedVideo.id]?.map((comment) => (
-                          <div key={comment.id} className="bg-gray-50 p-3 rounded-lg">
+                          <div
+                            key={comment.id}
+                            className="bg-gray-50 p-3 rounded-lg"
+                          >
                             <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium text-sm text-gray-800">{comment.author}</span>
-                              <span className="text-xs text-gray-500">{comment.timestamp}</span>
+                              <span className="font-medium text-sm text-gray-800">
+                                {comment.author}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {comment.timestamp}
+                              </span>
                             </div>
-                            <p className="text-sm text-gray-700 mb-2">{comment.comment}</p>
-                            <button 
-                              onClick={() => handleLikeComment(selectedVideo.id, comment.id)}
+                            <p className="text-sm text-gray-700 mb-2">
+                              {comment.comment}
+                            </p>
+                            <button
+                              onClick={() =>
+                                handleLikeComment(selectedVideo.id, comment.id)
+                              }
                               className="flex items-center space-x-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
                             >
                               <Heart className="h-3 w-3" />
@@ -630,10 +673,12 @@ export default function LeaderboardPage() {
                         placeholder="Add a comment..."
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && handleAddComment()
+                        }
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
                       />
-                      <Button 
+                      <Button
                         onClick={handleAddComment}
                         size="sm"
                         className="bg-yellow-400 hover:bg-yellow-500 text-black px-3"
@@ -650,5 +695,5 @@ export default function LeaderboardPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
